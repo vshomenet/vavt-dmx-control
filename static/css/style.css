@@ -1,0 +1,32 @@
+.menu {
+    color: black;
+    text-align: center;
+    padding: 10px;
+}
+
+
+#main_menu {
+  font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+  font-size: 14px;
+  background: white;
+  max-width: 100%;
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+  border: 2px #eee solid;
+}
+
+
+h1 {
+    border: 2px #eee solid;
+    color: blue;
+    text-align: center;
+    padding: 10px;
+}
+
+h3 {
+    border: 2px #fff solid;
+    color: black;
+    text-align: center;
+    padding: 10px;
+}
