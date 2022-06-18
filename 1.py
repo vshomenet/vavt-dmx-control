@@ -2,18 +2,24 @@
 # -*- coding: UTF-8 -*-
 import os
 import sys
-from classConfig import ConfigDMX
+import hashlib
+from classConfig import ConfigHost
 
-main_cfg ='/home/sergey/1/config'
-
-c = ConfigDMX(main_cfg)
+path ='/home/sergey/1/'
+host = ConfigHost(path)
 
 #c.add_device('Modul-1', 'dimmer', '1', '5')
-print(c.all_device())
+#print(host.main_menu())
+
+
 #c.del_device('Modul-1')
 #print(c.get_dmx('1'))
 #c.set_dmx('1', '1', '0')
 #a = c.get_dmx('1')
 #for x in a:
-#print (x[1].split(', ')[1])
+#print (x[1].split(', ')[1])import hashlib
+data = 'KvBLli'
+#hash_object = hashlib.md5(bytes(data, encoding = 'utf-8'))
+#a = hash_object.hexdigest()
+print(host.passwd('check', data))
 

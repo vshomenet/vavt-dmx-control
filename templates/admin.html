@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}
+	{{ page }}
+{% endblock %}
+
+{% block menu %}
+	<div class="menu">
+	<table id="main_menu">
+	<tr>
+	{% for key, value in menus.items() %}
+		<td>
+		<a href= "{{url_for(key)}}" >
+            <h2>{{ value }}</h2>
+        </a>
+		</td>
+	{% endfor %}
+	</tr>
+	</table>
+	</div>
+{% endblock %}
+
+{% block container %}
+	<div class="container">
+    	<h1> {{ page }} </h1>
+	</div>
+<form method="post">
+{% if 'login' in data %}
+   {{ lgn.csrf_token() }}
+    <div>
+	{{ lgn.login.label }}
+	{{ lgn.login }}
+    <br>
+	{{ lgn.passwd.label }}
+	{{ lgn.passwd }}
+    </div>
+    <div>
+	{{ lgn.login_btn }}
+    </div>
+{% elif 'ch_admin' in data %}
+   {{ ch_pass.csrf_token() }}
+    <div>
+	{{ ch_pass.old_pass.label }}
+	{{ ch_pass.old_pass }}
+    <br>
+	{{ ch_pass.new_pass.label }}
+	{{ ch_pass.new_pass }}
+    <br>
+	{{ ch_pass.confirm_pass.label }}
+	{{ ch_pass.confirm_pass }}
+    </div>
+    <div>
+	{{ ch_pass.save_pass }}
+    </div>
+{% endif %}
+</form>
+{% endblock %}
+
+{% block content %}
+{% endblock %}
+
+{% block foot %}
+	<div class="foot">
+    	<h3> {{ foot }} </h3>
+	</div>
+{% endblock %}
+
