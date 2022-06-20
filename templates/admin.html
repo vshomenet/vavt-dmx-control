@@ -22,7 +22,7 @@
 
 {% block container %}
 	<div class="container">
-    	<h1> {{ page }} </h1>
+    	<h1> {{ page }} {{ text }}</h1>
 	</div>
 <form method="post">
 {% if 'login' in data %}
@@ -37,12 +37,10 @@
     <div>
 	{{ lgn.login_btn }}
     </div>
+	</form>
 {% elif 'ch_admin' in data %}
    {{ ch_pass.csrf_token() }}
     <div>
-	{{ ch_pass.old_pass.label }}
-	{{ ch_pass.old_pass }}
-    <br>
 	{{ ch_pass.new_pass.label }}
 	{{ ch_pass.new_pass }}
     <br>
@@ -52,6 +50,16 @@
     <div>
 	{{ ch_pass.save_pass }}
     </div>
+	</form>
+	<form method="post">
+    <div>
+	{{ ch_admin.login.label }}
+	{{ ch_admin.login }}
+    </div>
+    <div>
+	{{ ch_admin.save_login }}
+    </div>
+	</form>
 {% endif %}
 </form>
 {% endblock %}

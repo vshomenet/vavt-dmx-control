@@ -29,8 +29,10 @@ class ConfigHost(object):
 			return coding(passwd)
 		elif param == 'save':
 			self.init_parse(self.pathHost)
-			self.cfg.set('default', 'login', 'admin')
-			self.cfg.set('default', 'pass', coding(passwd))
+			if login:
+				self.cfg.set('default', 'login', login)
+			if passwd:
+				self.cfg.set('default', 'pass', coding(passwd))
 			self.write(self.pathHost)
 
 	def read_conf(self, section, param):

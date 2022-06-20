@@ -5,7 +5,7 @@ import sys
 from flask import Flask, render_template, request, url_for, flash, redirect, session
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, RadioField, PasswordField, BooleanField
-from wtforms.validators import DataRequired, ValidationError, Email, EqualTo, Length
+from wtforms.validators import DataRequired, InputRequired, ValidationError, Email, EqualTo, Length
 from werkzeug.exceptions import abort
 from classConfig import ConfigHost
 
@@ -25,12 +25,18 @@ class formLogin(FlaskForm):
 	passwd = PasswordField('Пароль', validators=[DataRequired()])
 	login_btn = SubmitField(label=('Войти'))
 
+class changeAdminName(FlaskForm):
+	login = StringField(label=("Логин"), validators=[DataRequired()])
+	save_login = SubmitField(label=('Сохранить'))
+
 class changePass(FlaskForm):
-	old_pass = PasswordField('Старый пароль', validators=[DataRequired()])
-	new_pass = PasswordField('Новый пароль', validators=[DataRequired(), Length(min=5, message='Пароль должен быть не меньше %(min)d символов')])
-	confirm_pass = PasswordField(label=('Повторите пароль'), validators=[DataRequired(message='*Обязательно'), EqualTo('new_pass', message='Пароли должны совпадать')])
+	new_pass = PasswordField('Новый пароль', validators=[InputRequired(), Length(min=5, message='Пароль должен быть не меньше %(min)d символов')])
+	confirm_pass = PasswordField(label=('Повторите пароль'), validators=[InputRequired(), Length(min=5, message='Пароль должен быть не меньше %(min)d символов')])
 	save_pass = SubmitField(label=('Сохранить'))
 
+path ='/home/sergey/1/'
+host = ConfigHost(path)
+foot = host.foot
 
 secret_key = os.urandom(32)
 app = Flask(__name__)
@@ -39,9 +45,6 @@ app.config['FLASK_APP'] = "index"
 app.config['DEBUG'] = True
 app.config['SECRET_KEY'] = secret_key
 
-path ='/home/sergey/1/'
-host = ConfigHost(path)
-foot = host.foot
 
 @app.route('/')
 def index():
@@ -130,9 +133,19 @@ def change_admin():
 	data = 'ch_admin'
 	text = ''
 	ch_pass = changePass()
+	ch_admin = changeAdminName()
 	if request.method == "POST":
-		pass
-	return render_template("admin.html", page = page, menus = menu, data=data, ch_pass=ch_pass, foot = foot)
+		if ch_pass.save_pass.data:
+			new_pass = ch_pass.new_pass.data
+			confirm_pass = ch_pass.confirm_pass.data
+			if new_pass == confirm_pass:
+				host.passwd('save', None, new_pass)
+				text = 'Пароль успешно изменен'
+		if ch_admin.login.data:
+			login = ch_admin.login.data
+			host.passwd('save', login, None)
+			text = "Имя пользователя успешно изменено"
+	return render_template("admin.html", page = page, menus = menu, text=text, data=data, ch_pass=ch_pass, ch_admin=ch_admin, foot = foot)
 
 @app.route('/logout')
 def logout():
