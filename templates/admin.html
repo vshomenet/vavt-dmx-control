@@ -24,6 +24,7 @@
 	<div class="container">
     	<h1> {{ page }} {{ text }}</h1>
 	</div>
+<div class="form">
 <form method="post">
 {% if 'login' in data %}
    {{ lgn.csrf_token() }}
@@ -62,6 +63,7 @@
 	</form>
 {% endif %}
 </form>
+</div>
 {% endblock %}
 
 {% block content %}

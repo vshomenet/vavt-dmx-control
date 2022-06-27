@@ -1,9 +1,34 @@
+html, body {
+	height: 100%;
+	margin: 0;
+}
+
+.content {
+	min-height: 100%;
+}
+
+.content-inside {
+	padding: 20px;
+	padding-bottom: 50px;
+}
+
+.footer {
+	height: 50px;
+	margin-top: -50px;
+}
+
+
 .menu {
-    color: black;
+	color: black;
     text-align: center;
     padding: 10px;
 }
 
+.form {
+    color: black;
+    text-align: center;
+    padding: 10px;
+}
 
 #main_menu {
   font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;

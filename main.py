@@ -4,7 +4,7 @@ import os
 import sys
 from flask import Flask, render_template, request, url_for, flash, redirect, session
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, RadioField, PasswordField, BooleanField
+from wtforms import StringField, SubmitField, RadioField, PasswordField, BooleanField, FormField, Form
 from wtforms.validators import DataRequired, InputRequired, ValidationError, Email, EqualTo, Length
 from werkzeug.exceptions import abort
 from classConfig import ConfigHost
@@ -19,6 +19,11 @@ class addDevice(FlaskForm):
 class delDevice(FlaskForm):
 	name_device = RadioField(label=('Какое устройство вы хотите удалить:'), choices=[], validators=[DataRequired()])
 	del_dev = SubmitField(label=('Удалить'))
+
+class changeNameDMX(FlaskForm):
+	list_channel = RadioField(label=('Какой канал вы хотите переименовать:'), choices=[], validators=[DataRequired()])
+	name_channel = StringField(label=("Укажите новое имя:"), validators=[DataRequired()])
+	save_channel = SubmitField(label=("Сохранить"))
 
 class formLogin(FlaskForm):
 	login = StringField(label=("Логин"), validators=[DataRequired()])
