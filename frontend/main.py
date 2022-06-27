@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-# -*- coding: UTF-8 -*-
 import os
 import sys
 from flask import Flask, render_template, request, url_for, flash, redirect, session

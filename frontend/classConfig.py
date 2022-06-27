@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-# -*- coding: UTF-8 -*-
 import os
 import sys
 import configparser
@@ -11,7 +10,7 @@ from wtforms.validators import DataRequired
 
 class GlobalVar(object):
     def __init__(self):
-        self.path = '/media/psf/Home/GIT/vavt-dmx'
+        self.path = '/media/psf/Home/GIT/vavt-dmx/frontend'
         
 class ConfigHost(object):
 	def __init__(self, path):
