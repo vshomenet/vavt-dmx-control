@@ -7,8 +7,9 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, RadioField, PasswordField, BooleanField, FormField, Form
 from wtforms.validators import DataRequired, InputRequired, ValidationError, Email, EqualTo, Length
 from werkzeug.exceptions import abort
-from classConfig import ConfigHost
+from classConfig import *
 
+# форма добавить DMX устройство
 class addDevice(FlaskForm):
 	name_device = StringField(label=('Введите называние устройства:'), validators=[DataRequired()])
 	mode_device = RadioField(label=('Укажите режим работы:'), choices=[('dimmer','Режим диммера'),('switch','Режим вкл выкл')], validators=[DataRequired()])
@@ -16,31 +17,36 @@ class addDevice(FlaskForm):
 	max_channel = StringField(label=('Укажите сколько DMX каналов на устройстве:'), validators=[DataRequired()])
 	save_dev = SubmitField(label=('Сохранить'))
 
+# форма удалить DMX устройство
 class delDevice(FlaskForm):
 	name_device = RadioField(label=('Какое устройство вы хотите удалить:'), choices=[], validators=[DataRequired()])
 	del_dev = SubmitField(label=('Удалить'))
 
+# форма переименовать DMX каналы
 class changeNameDMX(FlaskForm):
 	list_channel = RadioField(label=('Какой канал вы хотите переименовать:'), choices=[], validators=[DataRequired()])
 	name_channel = StringField(label=("Укажите новое имя:"), validators=[DataRequired()])
 	save_channel = SubmitField(label=("Сохранить"))
 
+# форма авторизации
 class formLogin(FlaskForm):
 	login = StringField(label=("Логин"), validators=[DataRequired()])
 	passwd = PasswordField('Пароль', validators=[DataRequired()])
 	login_btn = SubmitField(label=('Войти'))
 
+# форма смена имени пользователя
 class changeAdminName(FlaskForm):
 	login = StringField(label=("Логин"), validators=[DataRequired()])
 	save_login = SubmitField(label=('Сохранить'))
 
+# форма смены пароля
 class changePass(FlaskForm):
 	new_pass = PasswordField('Новый пароль', validators=[InputRequired(), Length(min=5, message='Пароль должен быть не меньше %(min)d символов')])
 	confirm_pass = PasswordField(label=('Повторите пароль'), validators=[InputRequired(), Length(min=5, message='Пароль должен быть не меньше %(min)d символов')])
 	save_pass = SubmitField(label=('Сохранить'))
 
-path ='/home/sergey/1/'
-host = ConfigHost(path)
+gv = GlobalVar()
+host = ConfigHost(gv.path)
 foot = host.foot
 
 secret_key = os.urandom(32)
@@ -50,7 +56,7 @@ app.config['FLASK_APP'] = "index"
 app.config['DEBUG'] = True
 app.config['SECRET_KEY'] = secret_key
 
-
+#---------- Главная страница ----------
 @app.route('/')
 def index():
 	if not "DMXlogin" in session:
@@ -60,6 +66,7 @@ def index():
 	page = "Главная страница"
 	return render_template("index.html", page = page, menus = menu,  foot = foot)
 
+#---------- Управление ----------
 @app.route('/control')
 def control():
 	if not "DMXlogin" in session:
@@ -69,6 +76,7 @@ def control():
 	page = "Управление"
 	return render_template("control.html", page = page, menus = menu, foot = foot)
 
+#---------- Добавить или удалить DMX устройство ----------
 @app.route('/cfg_device', methods=['GET', 'POST'])
 def cfg_device():
 	if not "DMXlogin" in session:
@@ -98,6 +106,7 @@ def cfg_device():
 			return redirect('/cfg_device')
 	return render_template("cfg_device.html", page = page, menus = menu, text=text, addDev=addDev, delDev=delDev, foot = foot)
 
+#---------- Переименовать каналы DMX ----------
 @app.route('/config', methods=['GET', 'POST'])
 def config():
 	if not "DMXlogin" in session:
@@ -108,6 +117,7 @@ def config():
 	page = "Настройки"
 	return render_template("config.html", page = page, menus = menu, foot = foot)
 
+#---------- Авторизация ----------
 @app.route('/login', methods=['GET', 'POST'])
 def login():
 	if not "DMXlogin" in session:
@@ -127,6 +137,7 @@ def login():
 			return redirect(url_for('index'))
 	return render_template("admin.html", page = page, menus = menu, data=data, lgn=lgn, foot = foot)
 
+#---------- Смена пароля и имени пользователя ----------
 @app.route('/change_admin', methods=['GET', 'POST'])
 def change_admin():
 	if not "DMXlogin" in session:
@@ -152,6 +163,7 @@ def change_admin():
 			text = "Имя пользователя успешно изменено"
 	return render_template("admin.html", page = page, menus = menu, text=text, data=data, ch_pass=ch_pass, ch_admin=ch_admin, foot = foot)
 
+#---------- Logout ----------
 @app.route('/logout')
 def logout():
 	session.pop('DMXlogin', None)

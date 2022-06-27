@@ -8,10 +8,15 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
 
+
+class GlobalVar(object):
+    def __init__(self):
+        self.path = '/media/psf/Home/GIT/vavt-dmx'
+        
 class ConfigHost(object):
 	def __init__(self, path):
-		self.pathDMX = str(path)+'conf/device.conf'
-		self.pathHost = str(path)+'conf/host.conf'
+		self.pathDMX = str(path)+'/conf/device.conf'
+		self.pathHost = str(path)+'/conf/host.conf'
 		self.main_menu = {"index":"Главная", "control":"Управление", "login":"Вход"}
 		self.admin_menu = {"index":"Главная", "control":"Управление", "config":"Настройки DMX", "cfg_device":"Устройства DMX", "change_admin":"Администратор"}
 		self.foot = "Все права защищены"
@@ -38,9 +43,6 @@ class ConfigHost(object):
 	def read_conf(self, section, param):
 		self.init_parse(self.pathHost)
 		return self.cfg.get(section, param)
-
-	def write_conf(self, section, param):
-		self.init_parse(self.pathHost)
 		
 	def init_parse(self, path):
 		self.cfg = configparser.ConfigParser()
@@ -62,7 +64,7 @@ class ConfigHost(object):
 			self.cfg.set(device, 'mode', mode)
 			i = int(first_channel)
 			while i < int(max_channel)+int(first_channel):
-				self.cfg.set(device, str(i), 'channel-'+str(i)+', 0')
+				self.cfg.set(device, 'channel-'+str(i), str(i)+', 0')
 				i += 1
 			self.write(self.pathDMX)
 			return True

@@ -4,10 +4,10 @@ import os
 import sys
 import random
 import string
-from classConfig import ConfigHost
+from classConfig import *
 
-path ='/home/sergey/1/'
-host = ConfigHost(path)
+gv = GlobalVar()
+host = ConfigHost(gv.path)
 
 valid_letters='AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz'
 login = 'admin'
