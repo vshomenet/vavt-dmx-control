@@ -167,5 +167,15 @@ def logout():
 	session.pop('DMXlogin', None)
 	return redirect(url_for('index'))
 
+#---------- Update ----------
+# https://github.com/vshomenet/vavt-dmx-control.git
+@app.route('/update')
+def update():
+	if not "DMXlogin" in session:
+		menu = host.main_menu
+		return redirect(url_for('login'))
+	else:
+		pass
+	
 if __name__ == "__main__":
 	app.run()
