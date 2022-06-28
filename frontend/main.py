@@ -51,8 +51,7 @@ foot = host.foot
 secret_key = os.urandom(32)
 app = Flask(__name__)
 app.config['FLASK_APP'] = "index"
-#app.config['FLASK_ENV'] = "development"
-app.config['DEBUG'] = True
+app.config['DEBUG'] = host.debug()
 app.config['SECRET_KEY'] = secret_key
 
 #---------- Главная страница ----------
