@@ -11,6 +11,7 @@ from wtforms.validators import DataRequired
 class GlobalVar(object):
     def __init__(self):
         self.path = '/media/psf/Home/GIT/vavt-dmx/frontend'
+        #self.path = '/opt/dmx
         
 class ConfigHost(object):
 	def __init__(self, path):
