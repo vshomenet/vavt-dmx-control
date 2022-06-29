@@ -5,7 +5,7 @@ echo "Install software..."
 echo "Install python modules..."
 #pip3 install Flask Flask-WTF WTForm Jinja2
 echo "Start config system..."
-mkdir -p /opt/dmx && mkdir -p /opt/dmx/update
+mkdir -p /opt/dmx
 cp -r frontend/* /opt/dmx
 echo 
 /opt/dmx/reset_pass.py

@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% include 'script.html' %}
+
+{% block title %}
+	{{ page }}
+{% endblock %}
+
+{% block menu %}
+	<div class="menu">
+	<table id="main_menu">
+	<tr>
+	{% for key, value in menus.items() %}
+		<td>
+		<a href= "{{url_for(key)}}" >
+            <h2>{{ value }}</h2>
+        </a>
+		</td>
+	{% endfor %}
+	</tr>
+	</table>
+	</div>
+{% endblock %}
+
+{% block container %}
+	<div class="container">
+    	<h1> {{ page }} <br> {{ text }} </h1>
+	</div>
+<div class="form">
+<form method="post" onsubmit="ShowLoading()">
+	{{ upd.csrf_token() }}
+	<div>
+	{{ upd.check_update }}
+	</div>
+</form>
+</div>
+{% endblock %}
+
+{% block content %}
+{% endblock %}
+
+{% block foot %}
+	<div class="foot">
+    	<h3> {{ foot }} </h3>
+	</div>
+{% endblock %}
+
