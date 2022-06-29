@@ -8,15 +8,14 @@ html, body {
 }
 
 .content-inside {
-	padding: 20px;
-	padding-bottom: 50px;
+	padding: 10px;
+	padding-bottom: 70px;
 }
 
 .footer {
-	height: 50px;
-	margin-top: -50px;
+	height: 70px;
+	margin-top: -70px;
 }
-
 
 .menu {
 	color: black;
@@ -31,7 +30,6 @@ html, body {
 }
 
 #main_menu {
-  font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
   font-size: 14px;
   background: white;
   max-width: 100%;
@@ -39,6 +37,15 @@ html, body {
   border-collapse: collapse;
   text-align: center;
   border: 2px #eee solid;
+}
+
+#foot {
+  font-size: 14px;
+  background: white;
+  max-width: 100%;
+  width: 100%;
+  border-collapse: collapse;
+  text-align: right;
 }
 
 

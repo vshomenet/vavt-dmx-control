@@ -53,7 +53,8 @@ class formUpdate(FlaskForm):
 
 gv = GlobalVar()
 host = ConfigHost(gv.path)
-foot = host.foot + " Версия программного обеспечения " +host.version()
+foot = host.foot
+foot.append("Версия программного обеспечения "+host.version())
 
 secret_key = os.urandom(32)
 app = Flask(__name__)

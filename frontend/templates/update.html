@@ -40,7 +40,11 @@
 
 {% block foot %}
 	<div class="foot">
-    	<h3> {{ foot }} </h3>
+		{% for txt in foot %}
+			<p>
+			{{ txt }}
+			</p>
+		{% endfor %}
 	</div>
 {% endblock %}
 
