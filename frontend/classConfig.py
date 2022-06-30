@@ -94,9 +94,9 @@ class ConfigHost(object):
 		return x
 
 	# Установка значений DMX
-	def set_dmx(self, device, channel, value):
+	def set_dmx(self, device, channel, val):
 		self.init_parse(self.pathDevice)
-		self.cfg.set(device, channel, value)
+		self.cfg.set(device, channel, val)
 		self.write(self.pathDevice)
 
 	# Проверка версии программного обеспечения

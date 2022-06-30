@@ -24,6 +24,38 @@
 	<div class="container">
     	<h1> {{ page }} </h1>
 	</div>
+	<div>
+		<h2> {{ text }} </h>
+	</div>
+<div class="form">
+<form method="post">
+{% if 'select_device' in form %}
+{{ selDMX.csrf_token() }}
+	<div>
+	{{ selDMX.list_dmx.label }}
+	{{ selDMX.list_dmx }}
+	</div>
+	<div>
+	{{ selDMX.sel_dmx }}
+	</div>
+	</form>
+{% elif 'change_device' in form %}
+{{ changeDMX.csrf_token() }}
+	<div>
+	{{ changeDMX.list_channel.label }}
+	{{ changeDMX.list_channel }}
+	<br>
+	{{ changeDMX.name_channel.label }}
+	{{ changeDMX.name_channel }}
+	</div>
+	<div>
+	{{ changeDMX.save_channel }}
+	{{ changeDMX.finish_edit }}
+	</div>
+	</form>
+{% endif %}
+</form>
+</div>
 {% endblock %}
 
 {% block content %}

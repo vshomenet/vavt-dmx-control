@@ -23,11 +23,17 @@ class delDevice(FlaskForm):
 	name_device = RadioField(label=('Какое устройство вы хотите удалить:'), choices=[], validators=[DataRequired()])
 	del_dev = SubmitField(label=('Удалить'))
 
+# выбор DMX прибора для переименования каналов
+class selectChangeDMX(FlaskForm):
+	list_dmx = RadioField(label=('Какой прибор вы хотите редактировать:'), choices=[], validators=[DataRequired()])
+	sel_dmx = SubmitField(label=('Выбрать'))
+
 # форма переименовать DMX каналы
 class changeNameDMX(FlaskForm):
 	list_channel = RadioField(label=('Какой канал вы хотите переименовать:'), choices=[], validators=[DataRequired()])
-	name_channel = StringField(label=("Укажите новое имя:"), validators=[DataRequired()])
+	name_channel = StringField(label=("Укажите новое имя:"))
 	save_channel = SubmitField(label=("Сохранить"))
+	finish_edit = SubmitField(label=("Закончить редактировать"))
 
 # форма авторизации
 class formLogin(FlaskForm):
@@ -73,7 +79,7 @@ def index():
 	return render_template("index.html", page = page, menus = menu,  foot = foot)
 
 #---------- Управление ----------
-@app.route('/control')
+@app.route('/control', methods=['GET', 'POST'])
 def control():
 	if not "DMXlogin" in session:
 		menu = host.main_menu
@@ -120,8 +126,33 @@ def config():
 		return redirect(url_for('login'))
 	else:
 		menu = host.admin_menu
-	page = "Настройки"
-	return render_template("config.html", page = page, menus = menu, foot = foot)
+	page = "Переименование DMX каналов в приборах"
+	text = ''
+	form = 'select_device'
+	selDMX = selectChangeDMX()
+	changeDMX = changeNameDMX()
+	selDMX.list_dmx.choices = host.all_device()
+	if 'DMXdevice' in session:
+		form = 'change_device'
+		device = session['DMXdevice']
+		text = 'Вы редактируете прибор '+device
+		changeDMX.list_channel.choices = host.get_dmx(device)
+	if request.method =='POST':
+		if selDMX.sel_dmx.data:
+			name_device = selDMX.list_dmx.data
+			session['DMXdevice'] = name_device
+			return redirect(url_for('config'))
+		if changeDMX.save_channel.data:
+			name_channel = changeDMX.name_channel.data
+			num_channel = changeDMX.list_channel.data
+			if not name_channel:
+				name_channel = 'None'
+			host.set_dmx(device, num_channel, name_channel)
+			return redirect(url_for('config'))
+		if changeDMX.finish_edit.data:
+			session.pop('DMXdevice', None)
+			return redirect(url_for('config'))
+	return render_template("config.html", page = page, form = form, text = text, selDMX = selDMX, changeDMX = changeDMX, menus = menu, foot = foot)
 
 #---------- Авторизация ----------
 @app.route('/login', methods=['GET', 'POST'])
