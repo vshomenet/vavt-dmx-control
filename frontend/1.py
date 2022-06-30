@@ -11,4 +11,4 @@ host = ConfigHost(gv.path)
 #    print(x[1].split(', ')[0])
 
 
-
+print(host.get_dmx('test'))
