@@ -64,7 +64,12 @@
 
 {% block foot %}
 	<div class="foot">
-    	<h3> {{ foot }} </h3>
+		<a>
+		{% for txt in foot %}
+			{{ txt }}
+			<br>
+		{% endfor %}
+		</a>
 	</div>
 {% endblock %}
 

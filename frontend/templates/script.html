@@ -1,0 +1,12 @@
+<script type="text/javascript">
+	function ShowLoading(e) {
+		var div = document.createElement('div');
+		var img = document.createElement('img');
+		img.src = '/static/loading.gif';
+		div.innerHTML = "Пожалуйста подождите...<br />";
+		div.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: whitesmoke;';
+		div.appendChild(img);
+		document.body.appendChild(div);
+		return true;
+	}
+</script>

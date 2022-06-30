@@ -1,50 +1,64 @@
 html, body {
 	height: 100%;
 	margin: 0;
+	background: url(/static/background.png) no-repeat;
+	background-size: 100% 100%;
+	background-attachment: fixed;
 }
 
+A {
+	color: whitesmoke;
+}
 .content {
 	min-height: 100%;
 }
 
 .content-inside {
 	padding: 20px;
-	padding-bottom: 50px;
+	padding-bottom: 90px;
 }
 
 .footer {
-	height: 50px;
-	margin-top: -50px;
+	height: 90px;
+	margin-top: -90px;
 }
 
-
 .menu {
-	color: black;
+	color: whitesmoke;
     text-align: center;
     padding: 10px;
 }
 
 .form {
-    color: black;
+	position: absolute;
+	left: 50%;
+	transform: translate(-50%);
+    color: whitesmoke;
     text-align: center;
     padding: 10px;
+	border: 2px whitesmoke solid;
 }
 
+.foot {
+	color: black;
+	text-align: right;
+	color: whitesmoke;
+	padding: 10px;
+	font-size: 16px;
+}
 #main_menu {
-  font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
   font-size: 14px;
-  background: white;
+  #background: white;
   max-width: 100%;
   width: 100%;
   border-collapse: collapse;
   text-align: center;
-  border: 2px #eee solid;
+  #border: 2px #eee solid;
 }
 
-
 h1 {
-    border: 2px #eee solid;
-    color: blue;
+    #border: 2px #eee solid;
+    color: whitesmoke;
     text-align: center;
     padding: 10px;
 }

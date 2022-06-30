@@ -3,9 +3,11 @@
   <head>
     <meta charset="utf-8">
 	<link rel="stylesheet" href="{{ url_for('static', filename= 'css/style.css') }}">
+	<link rel="icon" type="image/png" href="static/favicon.png">
 	<title>
 		{% block title %} {% endblock %}
 	</title>
+  {% include 'script.html' %}
   </head>
   <body>
   <div class="content">
