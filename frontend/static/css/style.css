@@ -5,16 +5,19 @@ html, body {
 
 .content {
 	min-height: 100%;
+	background: url(/static/background.png) no-repeat;
+	background-size: 100%;
+	background-attachment: fixed;
 }
 
 .content-inside {
-	padding: 10px;
-	padding-bottom: 70px;
+	padding: 20px;
+	padding-bottom: 80px;
 }
 
 .footer {
-	height: 70px;
-	margin-top: -70px;
+	height: 80px;
+	margin-top: -80px;
 }
 
 .menu {
@@ -29,6 +32,11 @@ html, body {
     padding: 10px;
 }
 
+.foot {
+	color: black;
+	text-align: right;
+	padding: 10px;
+}
 #main_menu {
   font-size: 14px;
   background: white;
@@ -38,16 +46,6 @@ html, body {
   text-align: center;
   border: 2px #eee solid;
 }
-
-#foot {
-  font-size: 14px;
-  background: white;
-  max-width: 100%;
-  width: 100%;
-  border-collapse: collapse;
-  text-align: right;
-}
-
 
 h1 {
     border: 2px #eee solid;
