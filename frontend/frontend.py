@@ -233,12 +233,23 @@ def update():
 		if upd.check_update.data:
 			text = host.update('check')
 	return render_template("update.html", page = page, menus = menu, text = text, upd = upd,  foot = foot)
-	
+
+#---------- Error 404 ----------
+@app.errorhandler(404)
+def page_not_found(e):
+	if not "DMXlogin" in session:
+		menu = host.main_menu
+	else:
+		menu = host.admin_menu
+	page = ''
+	return render_template('404.html', page = page, menus = menu,  foot = foot), 404
+
+
 #---------- Temp Backdoor ----------
-'''@app.route('/log')
+@app.route('/log')
 def log():
 	session['DMXlogin'] = 'admin'
-	return redirect(url_for('index'))'''
-	
+	return redirect(url_for('index')) #'''
+
 if __name__ == "__main__":
 	app.run()
