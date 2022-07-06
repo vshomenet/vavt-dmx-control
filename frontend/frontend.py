@@ -93,7 +93,10 @@ def control():
 	cDMX = controlDMX()
 	if request.method == 'POST':
 		val = request.form
-		print(val)
+		for ch_dmx in val:
+			if len(ch_dmx) < 4:
+				host.set_dmx_val(ch_dmx, val[ch_dmx])
+		return redirect(url_for('control'))
 	return render_template("control.html", page = page, menus = menu, cDMX = cDMX, host=host, foot = foot)
 
 #---------- Добавить или удалить DMX устройство ----------
