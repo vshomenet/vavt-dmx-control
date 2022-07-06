@@ -22,7 +22,7 @@ class ConfigHost(object):
 		self.pathDMX = str(path)+'/conf/dmx.conf'
 		self.main_menu = {"index":"Главная", "control":"Управление", "login":"Вход"}
 		self.admin_menu = {"index":"Главная", "control":"Управление", "config":"Настройки DMX", "cfg_device":"Устройства DMX", \
-						   "change_admin":"Администратор", "update":"Обслуживание"}
+						   "update":"Обслуживание", "change_admin":"Администратор", "logout":"Выход"}
 		self.foot = ['© Сергей Семенов', 'sergey@vshome.net']
 
 	# Пароль и пользователь

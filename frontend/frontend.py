@@ -244,7 +244,6 @@ def page_not_found(e):
 	page = ''
 	return render_template('404.html', page = page, menus = menu,  foot = foot), 404
 
-
 #---------- Temp Backdoor ----------
 @app.route('/log')
 def log():
