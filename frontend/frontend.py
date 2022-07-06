@@ -5,7 +5,7 @@ import time
 import subprocess
 from flask import Flask, render_template, request, url_for, flash, redirect, session
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, RadioField, PasswordField, BooleanField, FormField, Form
+from wtforms import StringField, SubmitField, RadioField, PasswordField, BooleanField, FormField, Form, DecimalRangeField, IntegerRangeField
 from wtforms.validators import DataRequired, InputRequired, ValidationError, Email, EqualTo, Length
 from werkzeug.exceptions import abort
 from classConfig import *
@@ -35,15 +35,19 @@ class changeNameDMX(FlaskForm):
 	save_channel = SubmitField(label=("Сохранить"))
 	finish_edit = SubmitField(label=("Закончить редактировать"))
 
+# форма управления DMX
+class controlDMX(FlaskForm):
+	save_dmx = SubmitField(label=('Отправить'))
+
 # форма авторизации
 class formLogin(FlaskForm):
-	login = StringField(label=("Логин"), validators=[DataRequired()])
+	login = StringField(label=('Логин'), validators=[DataRequired()])
 	passwd = PasswordField('Пароль', validators=[DataRequired()])
 	login_btn = SubmitField(label=('Войти'))
 
 # форма смена имени пользователя
 class changeAdminName(FlaskForm):
-	login = StringField(label=("Логин"), validators=[DataRequired()])
+	login = StringField(label=('Новый логин'), validators=[DataRequired()])
 	save_login = SubmitField(label=('Сохранить'))
 
 # форма смены пароля
@@ -86,7 +90,14 @@ def control():
 	else:
 		menu = host.admin_menu
 	page = "Управление"
-	return render_template("control.html", page = page, menus = menu, foot = foot)
+	cDMX = controlDMX()
+	if request.method == 'POST':
+		val = request.form
+		for ch_dmx in val:
+			if len(ch_dmx) < 4:
+				host.set_dmx_val(ch_dmx, val[ch_dmx])
+		return redirect(url_for('control'))
+	return render_template("control.html", page = page, menus = menu, cDMX = cDMX, host=host, foot = foot)
 
 #---------- Добавить или удалить DMX устройство ----------
 @app.route('/cfg_device', methods=['GET', 'POST'])
@@ -111,9 +122,10 @@ def cfg_device():
 				text = "Ошибка сохранения настроек Устройство с таким именем уже есть"
 				return render_template("cfg_device.html", page=page, menus=menu, text=text, addDev=addDev, delDev=delDev, foot=foot)
 			host.add_device(name_device, mode_device, first_channel, max_channel)
-			text = "Настройки сохранены"
+			return redirect(url_for('cfg_device'))
 		if delDev.del_dev.data and len(host.all_device())>=1:
 			name_device = delDev.name_device.data
+			session.pop('DMXdevice', None)
 			host.del_device(name_device)
 			return redirect('/cfg_device')
 	return render_template("cfg_device.html", page = page, menus = menu, text=text, addDev=addDev, delDev=delDev, foot = foot)
@@ -182,7 +194,7 @@ def change_admin():
 		return redirect(url_for('login'))
 	else:
 		menu = host.admin_menu
-	page = "Смена пароля"
+	page = "Смена имени пользователя и пароля"
 	data = 'ch_admin'
 	text = ''
 	ch_pass = changePass()

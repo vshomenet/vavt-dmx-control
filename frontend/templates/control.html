@@ -24,6 +24,20 @@
 	<div class="container">
     	<h1> {{ page }} </h1>
 	</div>
+<div class="form">
+<form method="post">
+{{ cDMX.csrf_token() }}
+	{% for dev in host.all_device() %}
+	<p>{{ dev }}</p>
+		{% for dmx in host.get_dmx(dev)%}
+		<label for="{{dmx.0}}">{{dmx.1}}:</label><input type="range" name="{{ dmx.0 }}" min="0" max="255" step="1" value="{{ host.get_dmx_val(dmx.0) }}"></input><br>
+		{% endfor %}
+	{% endfor %}
+	<div>
+	{{ cDMX.save_dmx}}
+	</div>
+</form>
+</div>
 {% endblock %}
 
 {% block content %}

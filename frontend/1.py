@@ -7,8 +7,4 @@ from classConfig import *
 gv = GlobalVar()
 host = ConfigHost(gv.path)
 
-#for x in host.get_dmx('vika'):
-#    print(x[1].split(', ')[0])
 
-
-print(host.get_dmx('test'))
