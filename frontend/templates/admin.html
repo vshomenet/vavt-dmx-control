@@ -41,25 +41,30 @@
 	</form>
 {% elif 'ch_admin' in data %}
    {{ ch_pass.csrf_token() }}
-    <div>
+   <div>
+	   <p>Смена имени пользователя</p>
+   {{ ch_admin.login.label }}
+   {{ ch_admin.login }}
+   </div>
+   <br>
+   <div>
+   {{ ch_admin.save_login }}
+   </div>
+   </form>
+   <br><br>
+   <form method="post">
+	<div>
+		<p>Смена пароля</p>
 	{{ ch_pass.new_pass.label }}
 	{{ ch_pass.new_pass }}
-    <br>
+	<br>
 	{{ ch_pass.confirm_pass.label }}
 	{{ ch_pass.confirm_pass }}
-    </div>
-    <div>
+	</div>
+	<br>
+	<div>
 	{{ ch_pass.save_pass }}
-    </div>
-	</form>
-	<form method="post">
-    <div>
-	{{ ch_admin.login.label }}
-	{{ ch_admin.login }}
-    </div>
-    <div>
-	{{ ch_admin.save_login }}
-    </div>
+	</div>
 	</form>
 {% endif %}
 </form>

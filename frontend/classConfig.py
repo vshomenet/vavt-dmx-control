@@ -93,12 +93,23 @@ class ConfigHost(object):
 		del x[0]
 		return x
 
-	# Установка значений DMX
+	# Переименование DMX каналов
 	def set_dmx(self, device, channel, val):
 		self.init_parse(self.pathDevice)
 		self.cfg.set(device, channel, val)
 		self.write(self.pathDevice)
 
+	# Получаем значения DMX каналов
+	def get_dmx_val(self, channel):
+		self.init_parse(self.pathDMX)
+		return self.cfg.get('manual', channel)
+
+	# Установка значений DMX каналов
+	def set_dmx_val(self, channel, val):
+		self.init_parse(self.pathDMX)
+		self.cfg.set('manual', channel, val)
+		self.write(self.pathDMX)
+		
 	# Проверка версии программного обеспечения
 	def version(self):
 		self.init_parse(self.pathHost)
