@@ -235,10 +235,10 @@ def update():
 	return render_template("update.html", page = page, menus = menu, text = text, upd = upd,  foot = foot)
 	
 #---------- Temp Backdoor ----------
-@app.route('/log')
+'''@app.route('/log')
 def log():
 	session['DMXlogin'] = 'admin'
-	return redirect(url_for('index'))
+	return redirect(url_for('index'))'''
 	
 if __name__ == "__main__":
 	app.run()

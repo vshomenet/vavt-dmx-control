@@ -140,7 +140,7 @@ class ConfigHost(object):
 					for lines in f.readlines():
 						line = lines.strip()
 						if line.find('version') >= 0:
-							new_version = line.split(' ')[2]
+							new_version = line.split(' = ')[1]
 				if version != new_version:
 					res = "Найдена новая версия программного обеспечения " + str(new_version)
 				else:
