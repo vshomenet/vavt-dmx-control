@@ -31,13 +31,16 @@ class selectChangeDMX(FlaskForm):
 # форма переименовать DMX каналы
 class changeNameDMX(FlaskForm):
 	list_channel = RadioField(label=('Какой канал вы хотите переименовать:'), choices=[], validators=[DataRequired()])
-	name_channel = StringField(label=("Укажите новое имя:"))
-	save_channel = SubmitField(label=("Сохранить"))
-	finish_edit = SubmitField(label=("Закончить редактировать"))
+	name_channel = StringField(label=('Укажите новое имя:'))
+	save_channel = SubmitField(label=('Сохранить'))
+	finish_edit = SubmitField(label=('Закончить редактировать'))
 
 # форма управления DMX
 class controlDMX(FlaskForm):
+	list_device = RadioField(label=('Каким прибором вы хотите управлять:'), choices=[], validators=[DataRequired()])
+	select_device = SubmitField(label=('Выбрать'))
 	save_dmx = SubmitField(label=('Отправить'))
+	finish_control = SubmitField(label=('Выбрать другой'))
 
 # форма авторизации
 class formLogin(FlaskForm):
@@ -79,8 +82,8 @@ def index():
 		menu = host.main_menu
 	else:
 		menu = host.admin_menu
-	page = "Главная страница"
-	return render_template("index.html", page = page, menus = menu,  foot = foot)
+	page = "Пресеты"
+	return render_template("preset.html", page = page, menus = menu,  foot = foot)
 
 #---------- Управление ----------
 @app.route('/control', methods=['GET', 'POST'])
@@ -89,15 +92,31 @@ def control():
 		menu = host.main_menu
 	else:
 		menu = host.admin_menu
-	page = "Управление"
+	page = "Ручное управление"
+	form = 'select_device'
+	text = ''
+	data = host.all_device()
 	cDMX = controlDMX()
+	cDMX.list_device.choices = host.all_device()
+	if 'DMXcontrol' in session:
+		form = 'control_device'
+		device = session['DMXcontrol']
+		text = 'Вы управляете прибором '+device
+		data = host.get_dmx(device)
 	if request.method == 'POST':
+		if cDMX.select_device.data:
+			device = cDMX.list_device.data
+			session['DMXcontrol'] = device
+			return redirect(url_for('control'))
+		if cDMX.finish_control.data:
+			session.pop('DMXcontrol', None)
+			return redirect(url_for('control'))
 		val = request.form
 		for ch_dmx in val:
 			if len(ch_dmx) < 4:
 				host.set_dmx_val(ch_dmx, val[ch_dmx])
 		return redirect(url_for('control'))
-	return render_template("control.html", page = page, menus = menu, cDMX = cDMX, host=host, foot = foot)
+	return render_template("control.html", page = page, text = text, menus = menu, form = form, data = data, cDMX = cDMX, host=host, foot = foot)
 
 #---------- Добавить или удалить DMX устройство ----------
 @app.route('/cfg_device', methods=['GET', 'POST'])
@@ -126,6 +145,7 @@ def cfg_device():
 		if delDev.del_dev.data and len(host.all_device())>=1:
 			name_device = delDev.name_device.data
 			session.pop('DMXdevice', None)
+			session.pop('DMXcontrol', None)
 			host.del_device(name_device)
 			return redirect('/cfg_device')
 	return render_template("cfg_device.html", page = page, menus = menu, text=text, addDev=addDev, delDev=delDev, foot = foot)

@@ -24,31 +24,6 @@
 	<div class="container">
     	<h1> {{ page }} </h1>
 	</div>
-	<div>
-		<h2> {{ text }} </h>
-	</div>
-<div class="form">
-<form method="post">
-{{ cDMX.csrf_token() }}
-{% if 'select_device' in form %}
-	<div>
-		{{ cDMX.list_device.label }}
-		{{ cDMX.list_device }}
-	</div>
-	<div>
-		{{ cDMX.select_device }}
-	</div>
-{% elif 'control_device' in form %}
-	{% for dmx in data %}
-	<label for="{{dmx.0}}">{{dmx.1}}:</label><input type="range" name="{{ dmx.0 }}" min="0" max="255" step="1" value="{{ host.get_dmx_val(dmx.0) }}"></input><br>
-	{% endfor %}
-	<div>
-	{{ cDMX.save_dmx}}
-	{{ cDMX.finish_control }}
-	</div>
-{% endif %}
-</form>
-</div>
 {% endblock %}
 
 {% block content %}
