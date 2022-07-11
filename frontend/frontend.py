@@ -42,6 +42,17 @@ class controlDMX(FlaskForm):
 	save_dmx = SubmitField(label=('Отправить'))
 	finish_control = SubmitField(label=('Выбрать другой'))
 
+# форма сохранить пресет
+class savePreset(FlaskForm):
+	name_preset = StringField(label=(), validators=[DataRequired()])
+	save_preset = SubmitField(label=('Сохранить'))
+
+# форма вызов пресета и удаление
+class activePreset(FlaskForm):
+	list_preset = RadioField(label=('Какой пресет необходимо загрузить:'), choices=[], validators=[DataRequired()])
+	active_preset = SubmitField(label=('Загрузить'))
+	del_preset = SubmitField(label=('Удалить'))
+
 # форма авторизации
 class formLogin(FlaskForm):
 	login = StringField(label=('Логин'), validators=[DataRequired()])
