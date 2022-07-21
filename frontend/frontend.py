@@ -276,7 +276,7 @@ def page_not_found(e):
 	return render_template('404.html', page = page, menus = menu,  foot = foot), 404
 
 #---------- Temp Backdoor ----------
-@app.route('/log')
+'''@app.route('/log')
 def log():
 	session['DMXlogin'] = 'admin'
 	return redirect(url_for('index')) #'''
