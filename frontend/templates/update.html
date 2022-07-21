@@ -22,7 +22,7 @@
 
 {% block container %}
 	<div class="container">
-    	<h1> {{ page }} <br> {{ text }} </h1>
+    	<h1> {{ page }} <br> {{ text.0 }} </h1>
 	</div>
 <div class="form">
 <form method="post" onsubmit="ShowLoading()">
@@ -30,6 +30,12 @@
 	<div>
 	{{ upd.check_update }}
 	</div>
+	<br>
+	{% if f =='true' %}
+	<div>
+	{{ upd.update }}
+	</div>
+	{% endif %}
 </form>
 </div>
 {% endblock %}

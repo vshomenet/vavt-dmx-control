@@ -12,8 +12,8 @@ from wtforms.validators import DataRequired
 
 class GlobalVar(object):
 	def __init__(self):
-		#self.path = '/media/psf/Home/GIT/vavt-dmx/frontend'
-		self.path = '/opt/dmx'
+		self.path = '/media/psf/Home/GIT/vavt-dmx/frontend'
+		#self.path = '/opt/dmx'
         
 class ConfigHost(object):
 	def __init__(self, path):
@@ -149,10 +149,7 @@ class ConfigHost(object):
 			f = subprocess.Popen(com, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 			res = f.communicate()
 			return res
-		sub("mkdir /tmp/dmx")
-		com_clone = "git clone https://github.com/vshomenet/vavt-dmx-control.git /tmp/dmx"
-		clone = sub(com_clone)
-		if com_update == "check":
+		def check_ver():
 			if not str(clone).find('fatal') >= 0:
 				with open('/tmp/dmx/frontend/conf/host.conf', 'r') as f:
 					for lines in f.readlines():
@@ -160,13 +157,24 @@ class ConfigHost(object):
 						if line.find('version') >= 0:
 							new_version = line.split(' = ')[1]
 				if version != new_version:
-					res = "Найдена новая версия программного обеспечения " + str(new_version)
+					res.append("Найдена новая версия программного обеспечения " + str(new_version))
+					res.append('update')
 				else:
-					res = "У вас последняя версия программного обеспечения " + str(version)
+					res.append("У вас последняя версия программного обеспечения " + str(version))
 			else:
-				res = "Сервер обновлений не отвечает"
+				res.append("Сервер обновлений не отвечает")
+			return res
+		sub("mkdir /tmp/dmx")
+		com_clone = "git clone https://github.com/vshomenet/vavt-dmx-control.git /tmp/dmx"
+		clone = sub(com_clone)
+		res = list()
+		if com_update == "check":
+			res = check_ver()
+			sub("rm -rf /tmp/dmx")
 		if com_update == "update":
-			pass
-		sub("rm -rf /tmp/dmx")
+			ver = check_ver()
+			if len(ver) > 1:
+				print("Start update from class")
+				sub("rm -rf /tmp/dmx")
 		return res
 
