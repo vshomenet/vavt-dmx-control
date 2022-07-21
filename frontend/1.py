@@ -8,3 +8,6 @@ gv = GlobalVar()
 host = ConfigHost(gv.path)
 
 
+#print(host.get_dmx('test'))
+#print(host.all_device())
+print(host.get_preset())

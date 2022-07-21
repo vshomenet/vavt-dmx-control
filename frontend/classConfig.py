@@ -12,17 +12,17 @@ from wtforms.validators import DataRequired
 
 class GlobalVar(object):
 	def __init__(self):
-		self.path = '/media/psf/Home/GIT/vavt-dmx/frontend'
-		#self.path = '/opt/dmx
+		#self.path = '/media/psf/Home/GIT/vavt-dmx/frontend'
+		self.path = '/opt/dmx'
         
 class ConfigHost(object):
 	def __init__(self, path):
 		self.pathDevice = str(path)+'/conf/device.conf'
 		self.pathHost = str(path)+'/conf/host.conf'
 		self.pathDMX = str(path)+'/conf/dmx.conf'
-		self.main_menu = {"index":"Главная", "control":"Управление", "login":"Вход"}
-		self.admin_menu = {"index":"Главная", "control":"Управление", "config":"Настройки DMX", "cfg_device":"Устройства DMX", \
-						   "change_admin":"Администратор", "update":"Обслуживание"}
+		self.main_menu = {"index":"Пресеты", "control":"Ручное управление", "login":"Вход"}
+		self.admin_menu = {"index":"Пресеты", "control":"Ручное правление", "config":"Настройки DMX", "cfg_device":"Устройства DMX", \
+						   "update":"Обслуживание", "change_admin":"Администратор", "logout":"Выход"}
 		self.foot = ['© Сергей Семенов', 'sergey@vshome.net']
 
 	# Пароль и пользователь
@@ -76,8 +76,7 @@ class ConfigHost(object):
 				i += 1
 			self.write(self.pathDevice)
 			return True
-		except Exception as e:
-			print(e)
+		except:
 			return False
 
 	# Удаление устройств
@@ -109,7 +108,26 @@ class ConfigHost(object):
 		self.init_parse(self.pathDMX)
 		self.cfg.set('manual', channel, val)
 		self.write(self.pathDMX)
-		
+
+	# Получение всех пресетов
+	def get_preset(self):
+		self.init_parse(self.pathDMX)
+		list_preset = self.cfg.sections()
+		del list_preset[0]
+		return list_preset
+
+	# Сохранить удалить пресет
+	def change_preset(self, val, name):
+		self.init_parse(self.pathDMX)
+		try:
+			if val =='delete':
+				self.cfg.remove_section(name)
+				self.cfg.write(self.pathDMX)
+			if val == 'save':
+				pass
+		except:
+			return False
+
 	# Проверка версии программного обеспечения
 	def version(self):
 		self.init_parse(self.pathHost)
