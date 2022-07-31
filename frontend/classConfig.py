@@ -20,6 +20,7 @@ class ConfigHost(object):
 		self.pathDevice = str(path)+'/conf/device.conf'
 		self.pathHost = str(path)+'/conf/host.conf'
 		self.pathDMX = str(path)+'/conf/dmx.conf'
+		self.pathSys = str(path)+'/conf/sys.conf'
 		self.main_menu = {"index":"Пресеты", "control":"Ручное управление", "login":"Вход"}
 		self.admin_menu = {"index":"Пресеты", "control":"Ручное правление", "config":"Настройки DMX", "cfg_device":"Устройства DMX", \
 						   "update":"Обслуживание", "change_admin":"Администратор", "logout":"Выход"}
@@ -130,13 +131,13 @@ class ConfigHost(object):
 
 	# Проверка версии программного обеспечения
 	def version(self):
-		self.init_parse(self.pathHost)
-		return self.read_conf('default', 'version')
+		self.init_parse(self.pathSys)
+		return self.cfg.get('default', 'version')
 
 	# Вкл Выкл режим debug
 	def debug(self):
-		self.init_parse(self.pathHost)
-		debug = self.read_conf('default', 'debug')
+		self.init_parse(self.pathSys)
+		debug = self.cfg.get('default', 'debug')
 		if debug == 'True' or debug =='true':
 			return True
 		return False
@@ -174,7 +175,11 @@ class ConfigHost(object):
 		if com_update == "update":
 			ver = check_ver()
 			if len(ver) > 1:
-				print("Start update from class")
+				print("create tar conf")
+				print("save new ver")
+				f = subprocess.Popen('/tmp/dmx/update.sh', shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+				print("recovery tar conf")
+				print("save new ver in config")
 				sub("rm -rf /tmp/dmx")
 		return res
 
