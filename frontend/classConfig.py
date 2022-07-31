@@ -12,14 +12,15 @@ from wtforms.validators import DataRequired
 
 class GlobalVar(object):
 	def __init__(self):
-		#self.path = '/media/psf/Home/GIT/vavt-dmx/frontend'
-		self.path = '/opt/dmx'
+		self.path = '/media/psf/Home/GIT/vavt-dmx/frontend'
+		#self.path = '/opt/dmx'
         
 class ConfigHost(object):
 	def __init__(self, path):
 		self.pathDevice = str(path)+'/conf/device.conf'
 		self.pathHost = str(path)+'/conf/host.conf'
 		self.pathDMX = str(path)+'/conf/dmx.conf'
+		self.pathSys = str(path)+'/conf/sys.conf'
 		self.main_menu = {"index":"Пресеты", "control":"Ручное управление", "login":"Вход"}
 		self.admin_menu = {"index":"Пресеты", "control":"Ручное правление", "config":"Настройки DMX", "cfg_device":"Устройства DMX", \
 						   "update":"Обслуживание", "change_admin":"Администратор", "logout":"Выход"}
@@ -130,13 +131,13 @@ class ConfigHost(object):
 
 	# Проверка версии программного обеспечения
 	def version(self):
-		self.init_parse(self.pathHost)
-		return self.read_conf('default', 'version')
+		self.init_parse(self.pathSys)
+		return self.cfg.get('default', 'version')
 
 	# Вкл Выкл режим debug
 	def debug(self):
-		self.init_parse(self.pathHost)
-		debug = self.read_conf('default', 'debug')
+		self.init_parse(self.pathSys)
+		debug = self.cfg.get('default', 'debug')
 		if debug == 'True' or debug =='true':
 			return True
 		return False
@@ -149,24 +150,32 @@ class ConfigHost(object):
 			f = subprocess.Popen(com, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 			res = f.communicate()
 			return res
-		sub("mkdir /tmp/dmx")
-		com_clone = "git clone https://github.com/vshomenet/vavt-dmx-control.git /tmp/dmx"
-		clone = sub(com_clone)
-		if com_update == "check":
+		def check_ver():
 			if not str(clone).find('fatal') >= 0:
-				with open('/tmp/dmx/frontend/conf/host.conf', 'r') as f:
+				with open('/tmp/dmx/frontend/conf/sys.conf', 'r') as f:
 					for lines in f.readlines():
 						line = lines.strip()
 						if line.find('version') >= 0:
 							new_version = line.split(' = ')[1]
 				if version != new_version:
-					res = "Найдена новая версия программного обеспечения " + str(new_version)
+					res.append("Найдена новая версия программного обеспечения " + str(new_version))
+					res.append('update')
 				else:
-					res = "У вас последняя версия программного обеспечения " + str(version)
+					res.append("У вас последняя версия программного обеспечения " + str(version))
 			else:
-				res = "Сервер обновлений не отвечает"
+				res.append("Сервер обновлений не отвечает")
+			return res
+		sub("mkdir /tmp/dmx")
+		com_clone = "git clone https://github.com/vshomenet/vavt-dmx-control.git /tmp/dmx"
+		clone = sub(com_clone)
+		res = list()
+		if com_update == "check":
+			res = check_ver()
+			sub("rm -rf /tmp/dmx")
 		if com_update == "update":
-			pass
-		sub("rm -rf /tmp/dmx")
+			ver = check_ver()
+			if len(ver) > 1:
+				f = subprocess.Popen('/tmp/dmx/update.sh', shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+				res = 'Start update'
 		return res
 

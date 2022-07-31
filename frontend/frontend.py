@@ -260,10 +260,17 @@ def update():
 		menu = host.admin_menu
 	upd = formUpdate()
 	text = ''
+	f = 'false'
 	if request.method == "POST":
 		if upd.check_update.data:
 			text = host.update('check')
-	return render_template("update.html", page = page, menus = menu, text = text, upd = upd,  foot = foot)
+			if len(text) > 1:
+				f = 'true'
+		if upd.update.data:
+			host.update('update')
+			time.sleep(3)
+			return redirect(url_for('index'))
+	return render_template("update.html", page = page, menus = menu, text = text, upd = upd, f=f,  foot = foot)
 
 #---------- Error 404 ----------
 @app.errorhandler(404)
