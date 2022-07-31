@@ -152,7 +152,7 @@ class ConfigHost(object):
 			return res
 		def check_ver():
 			if not str(clone).find('fatal') >= 0:
-				with open('/tmp/dmx/frontend/conf/host.conf', 'r') as f:
+				with open('/tmp/dmx/frontend/conf/sys.conf', 'r') as f:
 					for lines in f.readlines():
 						line = lines.strip()
 						if line.find('version') >= 0:
@@ -175,11 +175,7 @@ class ConfigHost(object):
 		if com_update == "update":
 			ver = check_ver()
 			if len(ver) > 1:
-				print("create tar conf")
-				print("save new ver")
 				f = subprocess.Popen('/tmp/dmx/update.sh', shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-				print("recovery tar conf")
-				print("save new ver in config")
-				sub("rm -rf /tmp/dmx")
+				res = 'Start update'
 		return res
 
