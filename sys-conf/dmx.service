@@ -1,12 +1,14 @@
 [Unit]
 Description=uWSGI instance to serve DMX-control
-After=network.target
+After=syslog.target network.target
 
 [Service]
 User=root
 Group=root
 WorkingDirectory=/opt/dmx
 ExecStart=/usr/local/bin/uwsgi --ini /opt/dmx/dmx.ini
+Restart=on-failure
+RestartSec=5s
 
 [Install]
 WantedBy=multi-user.target

@@ -264,13 +264,17 @@ def update():
 	if request.method == "POST":
 		if upd.check_update.data:
 			text = host.update('check')
-			if len(text) > 1:
+			if 'update' in text: #len(text) > 1:
 				f = 'true'
 		if upd.update.data:
 			host.update('update')
-			time.sleep(3)
-			return redirect(url_for('index'))
+			return redirect(url_for('upgrade'))
 	return render_template("update.html", page = page, menus = menu, text = text, upd = upd, f=f,  foot = foot)
+	
+#---------- Upgrade ----------
+@app.route('/upgrade')
+def upgrade():
+	return render_template("upgrade.html")
 
 #---------- Error 404 ----------
 @app.errorhandler(404)

@@ -151,6 +151,7 @@ class ConfigHost(object):
 			res = f.communicate()
 			return res
 		def check_ver():
+			res = list()
 			if not str(clone).find('fatal') >= 0:
 				with open('/tmp/dmx/frontend/conf/sys.conf', 'r') as f:
 					for lines in f.readlines():
@@ -165,17 +166,16 @@ class ConfigHost(object):
 			else:
 				res.append("Сервер обновлений не отвечает")
 			return res
-		sub("mkdir /tmp/dmx")
-		com_clone = "git clone https://github.com/vshomenet/vavt-dmx-control.git /tmp/dmx"
-		clone = sub(com_clone)
-		res = list()
 		if com_update == "check":
+			if os.path.exists("/tmp/dmx"):
+				sub("rm -rf /tmp/dmx")
+			sub("mkdir /tmp/dmx")
+			com_clone = "git clone https://github.com/vshomenet/vavt-dmx-control.git /tmp/dmx"
+			clone = sub(com_clone)
 			res = check_ver()
-			sub("rm -rf /tmp/dmx")
 		if com_update == "update":
-			ver = check_ver()
-			if len(ver) > 1:
-				f = subprocess.Popen('/tmp/dmx/update.sh', shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-				res = 'Start update'
+			if os.path.exists("/tmp/dmx"):
+				f = subprocess.Popen('/tmp/dmx/frontend/update.sh', shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			res = []
 		return res
 
