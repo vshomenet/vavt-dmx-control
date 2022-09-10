@@ -24,6 +24,37 @@
 	<div class="container">
     	<h1> {{ page }} </h1>
 	</div>
+	<div>
+		<h2> {{ text }} </h>
+	</div>
+<div class="form">
+<form method="post">
+{{ aPr.csrf_token() }}
+	<div>
+		{{ aPr.list_preset.label }}
+		{{ aPr.list_preset }}
+	</div>
+	<div>
+		{{ aPr.active_preset }}
+{% if 'admin' in form %}
+		{{ aPr.del_preset }}
+	</div>
+{% endif %}
+{% if 'admin' in form %}
+</form><br><br>
+<p>Сохранить текущее состояние как пресет:</p><br>
+<form method="post">
+	<div>
+		{{ sPr.name_preset.label }}
+		{{ sPr.name_preset }}
+	</div>
+	<div>
+		{{ sPr.save_preset }}
+	</div>
+</form>
+{% endif %}
+</div>
+</div>
 {% endblock %}
 
 {% block content %}

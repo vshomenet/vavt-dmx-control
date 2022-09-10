@@ -12,8 +12,8 @@ from wtforms.validators import DataRequired
 
 class GlobalVar(object):
 	def __init__(self):
-		#self.path = '/media/psf/Home/GIT/vavt-dmx/frontend'
-		self.path = '/opt/dmx'
+		self.path = '/media/psf/Home/GIT/vavt-dmx/frontend'
+		#self.path = '/opt/dmx'
         
 class ConfigHost(object):
 	def __init__(self, path):
@@ -100,14 +100,14 @@ class ConfigHost(object):
 		self.write(self.pathDevice)
 
 	# Получаем значения DMX каналов
-	def get_dmx_val(self, channel):
+	def get_dmx_val(self, preset, channel):
 		self.init_parse(self.pathDMX)
-		return self.cfg.get('manual', channel)
+		return self.cfg.get(preset, channel)
 
 	# Установка значений DMX каналов
-	def set_dmx_val(self, channel, val):
+	def set_dmx_val(self, preset, channel, val):
 		self.init_parse(self.pathDMX)
-		self.cfg.set('manual', channel, val)
+		self.cfg.set(preset, channel, val)
 		self.write(self.pathDMX)
 
 	# Получение всех пресетов
@@ -118,16 +118,35 @@ class ConfigHost(object):
 		return list_preset
 
 	# Сохранить удалить пресет
-	def change_preset(self, val, name):
+	def change_preset(self, val, name, old_preset):
 		self.init_parse(self.pathDMX)
 		try:
 			if val =='delete':
 				self.cfg.remove_section(name)
-				self.cfg.write(self.pathDMX)
+				self.write(self.pathDMX)
 			if val == 'save':
-				pass
-		except:
+				if not name in self.get_preset():
+					self.cfg.add_section(name)
+					self.write(self.pathDMX)
+				channel = 1
+				while channel < 513:
+					data = self.cfg.get(old_preset, str(channel))
+					self.cfg.set(name, str(channel), data)
+					channel += 1
+				self.write(self.pathDMX)
+			return True
+		except Exception as e:
+			#print(e)
 			return False
+	
+	# Активация пресета
+	def activate_preset(self, *args):
+		self.init_parse(self.pathHost)
+		if args[0] == 'read':
+			return self.read_conf('default', 'preset')
+		elif args[0] == 'write':
+			self.cfg.set('default', 'preset', args[1])
+			self.write(self.pathHost)
 
 	# Проверка версии программного обеспечения
 	def version(self):
