@@ -317,7 +317,7 @@ def api():
 	return render_template("api.html")
 
 #---------- Temp Backdoor ----------
-@app.route('/log')
+'''@app.route('/log')
 def log():
 	session['DMXlogin'] = 'admin'
 	return redirect(url_for('index')) #'''
