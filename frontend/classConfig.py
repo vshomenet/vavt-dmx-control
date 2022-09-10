@@ -156,7 +156,7 @@ class ConfigHost(object):
 		self.init_parse(self.pathSys)
 		return self.cfg.get('default', 'version')
 	
-	#
+	# UUID установки
 	def id_install(self):
 		with open('/etc/machine-id', 'r') as f:
 			for line in f:

@@ -7,5 +7,8 @@ from classConfig import *
 gv = GlobalVar()
 host = ConfigHost(gv.path)
 
-host.activate_preset('write', 'manual')
-print(host.activate_preset('read'))
+x = dict()
+x['version'] = host.version()
+x['debug'] = host.debug()
+
+print(x)

@@ -3,7 +3,7 @@ import os
 import sys
 import time
 import subprocess
-from flask import Flask, render_template, request, url_for, flash, redirect, session
+from flask import Flask, render_template, request, url_for, flash, redirect, session, jsonify
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, RadioField, PasswordField, BooleanField, FormField, Form, DecimalRangeField, IntegerRangeField
 from wtforms.validators import DataRequired, InputRequired, ValidationError, Email, EqualTo, Length
@@ -313,9 +313,22 @@ def page_not_found(e):
 	return render_template('404.html', page = page, menus = menu,  foot = foot), 404
 
 #---------- API ----------
-@app.route('/api', methods=['GET', 'POS'])
-def api():
-	return render_template("api.html")
+@app.route('/api/v1/<string:param>', methods=['GET'])
+def get_info(param):
+	api = dict()
+	api['uuid'] = host.id_install()
+	api['version'] = host.version()
+	api['debug'] = host.debug()
+	api['mode'] = host.read_conf('default', 'mode')
+	api['preset'] = host.read_conf('default', 'preset')
+	api['dmxsender'] = host.read_conf('default', 'dmxsender')
+	api['device'] = host.all_device()
+	api['all_preset'] = host.get_preset()
+	if param == 'all':
+		return jsonify(api)
+	elif param in api:
+		return jsonify({param : api[param]})
+	return jsonify({'error':'param '+str(param)+' not found'})
 
 #---------- Temp Backdoor ----------
 @app.route('/log')
