@@ -17,4 +17,7 @@
 * Jinja2 3.1.2 или выше
 
 ### Установка
-TO-DO
+1. `apt install git`
+2. `git clone https://github.com/vshomenet/vavt-dmx-control.git`
+3. `cd vavt-dmx-control` 
+4. `./install.sh`
