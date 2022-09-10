@@ -40,7 +40,7 @@
 	</div>
 {% elif 'control_device' in form %}
 	{% for dmx in data %}
-	<label for="{{dmx.0}}">{{dmx.1}}:</label><input type="range" name="{{ dmx.0 }}" min="0" max="255" step="1" value="{{ host.get_dmx_val(dmx.0) }}"></input><br>
+	<label for="{{dmx.0}}">{{dmx.1}}:</label><input type="range" name="{{ dmx.0 }}" min="0" max="255" step="1" value="{{ host.get_dmx_val(host.read_conf('default', 'preset'), dmx.0) }}"></input><br>
 	{% endfor %}
 	<div>
 	{{ cDMX.save_dmx}}

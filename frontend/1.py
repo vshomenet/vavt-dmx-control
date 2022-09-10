@@ -7,10 +7,5 @@ from classConfig import *
 gv = GlobalVar()
 host = ConfigHost(gv.path)
 
-#res = host.update('update')
-#print(res)
-
-#f = subprocess.Popen('/usr/bin/gedit', shell= True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-#res = f.communicate()
-#print(res)
-print("hi sergey")
+host.activate_preset('write', 'manual')
+print(host.activate_preset('read'))

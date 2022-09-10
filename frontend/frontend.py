@@ -44,7 +44,7 @@ class controlDMX(FlaskForm):
 
 # форма сохранить пресет
 class savePreset(FlaskForm):
-	name_preset = StringField(label=(), validators=[DataRequired()])
+	name_preset = StringField(label=('Введите название'), validators=[DataRequired()])
 	save_preset = SubmitField(label=('Сохранить'))
 
 # форма вызов пресета и удаление
@@ -87,14 +87,39 @@ app.config['DEBUG'] = host.debug()
 app.config['SECRET_KEY'] = secret_key
 
 #---------- Главная страница ----------
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def index():
 	if not "DMXlogin" in session:
 		menu = host.main_menu
+		form = ''
 	else:
 		menu = host.admin_menu
+		form = 'admin'
 	page = "Пресеты"
-	return render_template("preset.html", page = page, menus = menu,  foot = foot)
+	text = 'Загружен пресет ' + host.activate_preset('read')
+	data = ''
+	aPr = activePreset()
+	sPr = savePreset()
+	aPr.list_preset.choices = ['default'] + host.get_preset()
+	if request.method == 'POST':
+		if aPr.active_preset.data:
+			data = aPr.list_preset.data
+			host.activate_preset('write', data)
+			return redirect(url_for('index'))
+		if aPr.del_preset.data:
+			data = aPr.list_preset.data
+			if data != 'default':
+				host.change_preset('delete', data, None)
+				host.activate_preset('write', 'default')
+				return redirect(url_for('index'))
+			else:
+				text = 'Нельзя удалить системный пресет default'
+		if sPr.name_preset.data:
+			data =  sPr.name_preset.data
+			host.change_preset('save', data, host.activate_preset('read'))
+			#host.activate_preset('write', data)
+			return redirect(url_for('index'))
+	return render_template("preset.html", page = page, text = text, menus = menu, form = form, aPr=aPr, sPr = sPr, foot = foot)
 
 #---------- Управление ----------
 @app.route('/control', methods=['GET', 'POST'])
@@ -125,7 +150,7 @@ def control():
 		val = request.form
 		for ch_dmx in val:
 			if len(ch_dmx) < 4:
-				host.set_dmx_val(ch_dmx, val[ch_dmx])
+				host.set_dmx_val(host.read_conf('default', 'preset'), ch_dmx, val[ch_dmx])
 		return redirect(url_for('control'))
 	return render_template("control.html", page = page, text = text, menus = menu, form = form, data = data, cDMX = cDMX, host=host, foot = foot)
 
@@ -264,7 +289,7 @@ def update():
 	if request.method == "POST":
 		if upd.check_update.data:
 			text = host.update('check')
-			if 'update' in text: #len(text) > 1:
+			if 'update' in text:
 				f = 'true'
 		if upd.update.data:
 			host.update('update')
@@ -286,8 +311,13 @@ def page_not_found(e):
 	page = ''
 	return render_template('404.html', page = page, menus = menu,  foot = foot), 404
 
+#---------- API ----------
+@app.route('/api', methods=['GET', 'POS'])
+def api():
+	return render_template("api.html")
+
 #---------- Temp Backdoor ----------
-'''@app.route('/log')
+@app.route('/log')
 def log():
 	session['DMXlogin'] = 'admin'
 	return redirect(url_for('index')) #'''
