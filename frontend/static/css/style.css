@@ -39,6 +39,10 @@ A {
 	border: 2px whitesmoke solid;
 }
 
+hr {
+	color: whitesmoke;
+}
+
 .foot {
 	color: black;
 	text-align: right;
