@@ -25,7 +25,7 @@
     	<h1> {{ page }} </h1>
 	</div>
 	<div>
-		<h2> {{ text }} </h>
+		<h2> {{ text }} </h2>
 	</div>
 <div class="form">
 <form method="post">
@@ -41,9 +41,10 @@
 	</div>
 {% endif %}
 {% if 'admin' in form %}
-</form><br><br>
+</form><br><br><hr color: whitesmoke>
 <p>Сохранить текущее состояние как пресет:</p><br>
 <form method="post">
+{{ sPr.csrf_token() }}
 	<div>
 		{{ sPr.name_preset.label }}
 		{{ sPr.name_preset }}

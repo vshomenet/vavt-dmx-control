@@ -6,6 +6,9 @@ import subprocess
 import locale
 import configparser
 import hashlib
+import base64
+import random
+import uuid
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
@@ -24,7 +27,7 @@ class ConfigHost(object):
 		self.main_menu = {"index":"Пресеты", "control":"Ручное управление", "login":"Вход"}
 		self.admin_menu = {"index":"Пресеты", "control":"Ручное правление", "config":"Настройки DMX", "cfg_device":"Устройства DMX", \
 						   "update":"Обслуживание", "change_admin":"Администратор", "logout":"Выход"}
-		self.foot = ['© Сергей Семенов', 'sergey@vshome.net']
+		self.foot = ['© Сергей Семенов sergey@vshome.net']
 
 	# Пароль и пользователь
 	def passwd(self, param, login, passwd):
@@ -109,6 +112,15 @@ class ConfigHost(object):
 		self.init_parse(self.pathDMX)
 		self.cfg.set(preset, channel, val)
 		self.write(self.pathDMX)
+		
+	# Сброс всех DMX на 0
+	def dmx_reset(self, preset):
+		self.init_parse(self.pathDMX)
+		i = 1
+		while i < 513:
+			self.cfg.set(preset, str(i), '0')
+			i += 1
+		self.write(self.pathDMX)
 
 	# Получение всех пресетов
 	def get_preset(self):
@@ -152,6 +164,15 @@ class ConfigHost(object):
 	def version(self):
 		self.init_parse(self.pathSys)
 		return self.cfg.get('default', 'version')
+	
+	# UUID установки
+	def id_install(self):
+		with open('/etc/machine-id', 'r') as f:
+			for line in f:
+				if len(line) > 3:
+					os_uuid = line
+		id = str(uuid.uuid3(uuid.NAMESPACE_X500, str(uuid.getnode())+os_uuid))
+		return id
 
 	# Вкл Выкл режим debug
 	def debug(self):

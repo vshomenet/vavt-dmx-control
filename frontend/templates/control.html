@@ -25,7 +25,10 @@
     	<h1> {{ page }} </h1>
 	</div>
 	<div>
-		<h2> {{ text }} </h>
+		<h2> {{ text2 }} </h>
+	</div>
+	<div>
+		<h2> {{ text }} </h2>
 	</div>
 <div class="form">
 <form method="post">
@@ -47,6 +50,13 @@
 	{{ cDMX.finish_control }}
 	</div>
 {% endif %}
+</form><br><br><hr>
+<form method="post">
+{{ fBl.csrf_token() }}
+<p>Сбросить все значения DMX на ноль</p>
+<div>
+	{{ fBl.black }}
+</div>
 </form>
 </div>
 {% endblock %}

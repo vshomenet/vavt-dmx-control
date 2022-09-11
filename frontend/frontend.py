@@ -3,7 +3,7 @@ import os
 import sys
 import time
 import subprocess
-from flask import Flask, render_template, request, url_for, flash, redirect, session
+from flask import Flask, render_template, request, url_for, flash, redirect, session, jsonify
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, RadioField, PasswordField, BooleanField, FormField, Form, DecimalRangeField, IntegerRangeField
 from wtforms.validators import DataRequired, InputRequired, ValidationError, Email, EqualTo, Length
@@ -53,6 +53,10 @@ class activePreset(FlaskForm):
 	active_preset = SubmitField(label=('Загрузить'))
 	del_preset = SubmitField(label=('Удалить'))
 
+# форма сброса всех значений dmx на 0
+class formBlack(FlaskForm):
+	black = SubmitField('Сброс')
+
 # форма авторизации
 class formLogin(FlaskForm):
 	login = StringField(label=('Логин'), validators=[DataRequired()])
@@ -75,10 +79,18 @@ class formUpdate(FlaskForm):
 	check_update = SubmitField('Проверить')
 	update = SubmitField('Обновить')
 
+def api_parse(key, param):
+	if key in ['preset']:
+		if key == 'preset' and param in ['default'] + host.get_preset():
+			host.activate_preset('write', param)
+			return True
+	return False
+	
 gv = GlobalVar()
 host = ConfigHost(gv.path)
 foot = host.foot
 foot.append("Версия программного обеспечения "+host.version())
+foot.append("ID установки " + host.id_install())
 
 secret_key = os.urandom(32)
 app = Flask(__name__)
@@ -131,8 +143,10 @@ def control():
 	page = "Ручное управление"
 	form = 'select_device'
 	text = ''
+	text2 = 'Загружен пресет ' + host.activate_preset('read')
 	data = host.all_device()
 	cDMX = controlDMX()
+	fBl = formBlack()
 	cDMX.list_device.choices = host.all_device()
 	if 'DMXcontrol' in session:
 		form = 'control_device'
@@ -147,12 +161,15 @@ def control():
 		if cDMX.finish_control.data:
 			session.pop('DMXcontrol', None)
 			return redirect(url_for('control'))
+		if fBl.black.data:
+			host.dmx_reset(host.read_conf('default', 'preset'))
+			return redirect(url_for('control'))
 		val = request.form
 		for ch_dmx in val:
 			if len(ch_dmx) < 4:
 				host.set_dmx_val(host.read_conf('default', 'preset'), ch_dmx, val[ch_dmx])
 		return redirect(url_for('control'))
-	return render_template("control.html", page = page, text = text, menus = menu, form = form, data = data, cDMX = cDMX, host=host, foot = foot)
+	return render_template("control.html", page = page, text = text, text2=text2, menus = menu, form = form, data = data, cDMX = cDMX, fBl=fBl, host=host, foot = foot)
 
 #---------- Добавить или удалить DMX устройство ----------
 @app.route('/cfg_device', methods=['GET', 'POST'])
@@ -312,9 +329,30 @@ def page_not_found(e):
 	return render_template('404.html', page = page, menus = menu,  foot = foot), 404
 
 #---------- API ----------
-@app.route('/api', methods=['GET', 'POS'])
-def api():
-	return render_template("api.html")
+@app.route('/api/v1/dmx/<string:param>', methods=['GET'])
+def api_info(param):
+	api = dict()
+	api['uuid'] = host.id_install()
+	api['version'] = host.version()
+	api['debug'] = host.debug()
+	api['mode'] = host.read_conf('default', 'mode')
+	api['preset'] = host.read_conf('default', 'preset')
+	api['dmxsender'] = host.read_conf('default', 'dmxsender')
+	api['device'] = host.all_device()
+	api['all_preset'] = ['default'] + host.get_preset()
+	if param == 'all':
+		return jsonify(api)
+	elif param in api:
+		return jsonify({param : api[param]})
+	return jsonify({'error':'param '+str(param)+' not found'})
+
+@app.route('/api/v1/dmx', methods=['POST'])
+def api_control():
+	if request.json:
+		key = list(request.json.keys())[0]
+		if api_parse(key, request.json[key]):
+			return jsonify({'dmx':'success'}), 201
+	return jsonify({'error':'incorrect json request'})
 
 #---------- Temp Backdoor ----------
 '''@app.route('/log')
