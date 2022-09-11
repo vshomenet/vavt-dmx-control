@@ -79,6 +79,13 @@ class formUpdate(FlaskForm):
 	check_update = SubmitField('Проверить')
 	update = SubmitField('Обновить')
 
+def api_parse(key, param):
+	if key in ['preset']:
+		if key == 'preset' and param in ['default'] + host.get_preset():
+			host.activate_preset('write', param)
+			return True
+	return False
+	
 gv = GlobalVar()
 host = ConfigHost(gv.path)
 foot = host.foot
@@ -322,8 +329,8 @@ def page_not_found(e):
 	return render_template('404.html', page = page, menus = menu,  foot = foot), 404
 
 #---------- API ----------
-@app.route('/api/v1/<string:param>', methods=['GET'])
-def get_info(param):
+@app.route('/api/v1/dmx/<string:param>', methods=['GET'])
+def api_info(param):
 	api = dict()
 	api['uuid'] = host.id_install()
 	api['version'] = host.version()
@@ -339,8 +346,16 @@ def get_info(param):
 		return jsonify({param : api[param]})
 	return jsonify({'error':'param '+str(param)+' not found'})
 
+@app.route('/api/v1/dmx', methods=['POST'])
+def api_control():
+	if request.json:
+		key = list(request.json.keys())[0]
+		if api_parse(key, request.json[key]):
+			return jsonify({'dmx':'success'}), 201
+	return jsonify({'error':'incorrect json request'})
+
 #---------- Temp Backdoor ----------
-@app.route('/log')
+'''@app.route('/log')
 def log():
 	session['DMXlogin'] = 'admin'
 	return redirect(url_for('index')) #'''
