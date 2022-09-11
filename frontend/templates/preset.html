@@ -44,6 +44,7 @@
 </form><br><br>
 <p>Сохранить текущее состояние как пресет:</p><br>
 <form method="post">
+{{ sPr.csrf_token() }}
 	<div>
 		{{ sPr.name_preset.label }}
 		{{ sPr.name_preset }}

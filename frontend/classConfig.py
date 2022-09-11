@@ -112,6 +112,15 @@ class ConfigHost(object):
 		self.init_parse(self.pathDMX)
 		self.cfg.set(preset, channel, val)
 		self.write(self.pathDMX)
+		
+	# Сброс всех DMX на 0
+	def dmx_reset(self, preset):
+		self.init_parse(self.pathDMX)
+		i = 1
+		while i < 513:
+			self.cfg.set(preset, str(i), '0')
+			i += 1
+		self.write(self.pathDMX)
 
 	# Получение всех пресетов
 	def get_preset(self):

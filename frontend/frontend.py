@@ -53,6 +53,10 @@ class activePreset(FlaskForm):
 	active_preset = SubmitField(label=('Загрузить'))
 	del_preset = SubmitField(label=('Удалить'))
 
+# форма сброса всех значений dmx на 0
+class formBlack(FlaskForm):
+	black = SubmitField('Сброс')
+
 # форма авторизации
 class formLogin(FlaskForm):
 	login = StringField(label=('Логин'), validators=[DataRequired()])
@@ -134,6 +138,7 @@ def control():
 	text = ''
 	data = host.all_device()
 	cDMX = controlDMX()
+	fBl = formBlack()
 	cDMX.list_device.choices = host.all_device()
 	if 'DMXcontrol' in session:
 		form = 'control_device'
@@ -148,12 +153,15 @@ def control():
 		if cDMX.finish_control.data:
 			session.pop('DMXcontrol', None)
 			return redirect(url_for('control'))
+		if fBl.black.data:
+			host.dmx_reset(host.read_conf('default', 'preset'))
+			return redirect(url_for('control'))
 		val = request.form
 		for ch_dmx in val:
 			if len(ch_dmx) < 4:
 				host.set_dmx_val(host.read_conf('default', 'preset'), ch_dmx, val[ch_dmx])
 		return redirect(url_for('control'))
-	return render_template("control.html", page = page, text = text, menus = menu, form = form, data = data, cDMX = cDMX, host=host, foot = foot)
+	return render_template("control.html", page = page, text = text, menus = menu, form = form, data = data, cDMX = cDMX, fBl=fBl, host=host, foot = foot)
 
 #---------- Добавить или удалить DMX устройство ----------
 @app.route('/cfg_device', methods=['GET', 'POST'])
@@ -323,7 +331,7 @@ def get_info(param):
 	api['preset'] = host.read_conf('default', 'preset')
 	api['dmxsender'] = host.read_conf('default', 'dmxsender')
 	api['device'] = host.all_device()
-	api['all_preset'] = host.get_preset()
+	api['all_preset'] = ['default'] + host.get_preset()
 	if param == 'all':
 		return jsonify(api)
 	elif param in api:

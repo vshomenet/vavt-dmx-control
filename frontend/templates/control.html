@@ -47,6 +47,13 @@
 	{{ cDMX.finish_control }}
 	</div>
 {% endif %}
+</form><br><br>
+<form method="post">
+{{ fBl.csrf_token() }}
+<p>Сбросить все значения DMX на ноль</p>
+<div>
+	{{ fBl.black }}
+</div>
 </form>
 </div>
 {% endblock %}
