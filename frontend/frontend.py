@@ -143,6 +143,7 @@ def control():
 	page = "Ручное управление"
 	form = 'select_device'
 	text = ''
+	mode = ''
 	text2 = 'Загружен пресет ' + host.activate_preset('read')
 	data = host.all_device()
 	cDMX = controlDMX()
@@ -152,6 +153,7 @@ def control():
 		form = 'control_device'
 		device = session['DMXcontrol']
 		text = 'Вы управляете прибором '+device
+		mode = host.get_mode(device)
 		data = host.get_dmx(device)
 	if request.method == 'POST':
 		if cDMX.select_device.data:
@@ -169,7 +171,7 @@ def control():
 			if len(ch_dmx) < 4:
 				host.set_dmx_val(host.read_conf('default', 'preset'), ch_dmx, val[ch_dmx])
 		return redirect(url_for('control'))
-	return render_template("control.html", page = page, text = text, text2=text2, menus = menu, form = form, data = data, cDMX = cDMX, fBl=fBl, host=host, foot = foot)
+	return render_template("control.html", page = page, text = text, text2=text2, menus = menu, form = form, data = data, cDMX = cDMX, fBl=fBl, host=host, mode=mode, foot = foot)
 
 #---------- Добавить или удалить DMX устройство ----------
 @app.route('/cfg_device', methods=['GET', 'POST'])

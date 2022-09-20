@@ -67,6 +67,11 @@ class ConfigHost(object):
 	def all_device(self):
 		self.init_parse(self.pathDevice)
 		return self.cfg.sections()
+		
+	# получение режима работы прибора
+	def get_mode(self, device):
+		self.init_parse(self.pathDevice)
+		return self.cfg.get(device, 'mode')
 
 	# добавление DMX устройств
 	def add_device(self, device, mode, first_channel, max_channel):
