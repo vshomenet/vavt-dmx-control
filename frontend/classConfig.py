@@ -15,8 +15,8 @@ from wtforms.validators import DataRequired
 
 class GlobalVar(object):
 	def __init__(self):
-		#self.path = '/media/psf/Home/GIT/vavt-dmx/frontend'
-		self.path = '/opt/dmx'
+		self.path = '/media/psf/Home/GIT/vavt-dmx/frontend'
+		#self.path = '/opt/dmx'
         
 class ConfigHost(object):
 	def __init__(self, path):
@@ -67,6 +67,11 @@ class ConfigHost(object):
 	def all_device(self):
 		self.init_parse(self.pathDevice)
 		return self.cfg.sections()
+		
+	# получение режима работы прибора
+	def get_mode(self, device):
+		self.init_parse(self.pathDevice)
+		return self.cfg.get(device, 'mode')
 
 	# добавление DMX устройств
 	def add_device(self, device, mode, first_channel, max_channel):

@@ -41,9 +41,18 @@
 	<div>
 		{{ cDMX.select_device }}
 	</div>
-{% elif 'control_device' in form %}
+{% elif 'control_device' in form and 'dimmer' in mode %}
 	{% for dmx in data %}
 	<label for="{{dmx.0}}">{{dmx.1}}:</label><input type="range" name="{{ dmx.0 }}" min="0" max="255" step="1" value="{{ host.get_dmx_val(host.read_conf('default', 'preset'), dmx.0) }}"></input><br>
+	{% endfor %}
+	<div>
+	{{ cDMX.save_dmx}}
+	{{ cDMX.finish_control }}
+	</div>
+{% elif 'control_device' in form and 'switch' in mode %}
+	{% for dmx in data %}
+	<label for="{{dmx.0}}">{{dmx.1}}: &nbsp &nbsp вкл</label><input type="radio" name="{{ dmx.0 }}" value="255" {% if host.get_dmx_val(host.read_conf('default', 'preset'), dmx.0)|int >= 127 %} checked{% endif %}></input>
+	<label for="{{dmx.0}}">выкл</label><input type="radio" name="{{ dmx.0 }}" value="0" {% if host.get_dmx_val(host.read_conf('default', 'preset'), dmx.0)|int <= 126 %} checked {% endif %}></input><br>
 	{% endfor %}
 	<div>
 	{{ cDMX.save_dmx}}
