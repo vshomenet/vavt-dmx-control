@@ -20,6 +20,11 @@ ln -s /etc/nginx/sites-available/web-dmx /etc/nginx/sites-enabled
 rm /etc/nginx/sites-enabled/default
 /bin/systemctl restart nginx
 sleep 5
+echo "Start config DMX-sender..."
+cp sys-conf/dmx-sender.service /etc/systemd/system
+/bin/systemctl enable dmx-sender
+/bin/systemctl restart dmx-sender
+sleep 5
 echo "Start config password for system..."
 sleep 5
 echo

@@ -1,0 +1,17 @@
+[Unit]
+Description=DMX sender for /dev/ttyUSB*
+After=syslog.target network.target
+
+[Service]
+User=root
+Group=root
+Type=simple
+WorkingDirectory=/opt/dmx
+ExecStart=/opt/dmx/backend.py
+ExecStop=/bin/kill -15 $MAINPID
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
+
