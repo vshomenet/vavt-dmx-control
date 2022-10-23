@@ -15,6 +15,8 @@
 * Flask-WTF 1.0.1 или выше
 * WTForms 3.0.1 или выше
 * Jinja2 3.1.2 или выше
+* Pyserial 3.5 или выше
+* Dmx485 1.2.1 или выше
 
 ### Установка
 1. `apt install git`
