@@ -357,7 +357,7 @@ def api_control():
 	return jsonify({'error':'incorrect json request'})
 
 #---------- Temp Backdoor ----------
-@app.route('/log')
+'''@app.route('/log')
 def log():
 	session['DMXlogin'] = 'admin'
 	return redirect(url_for('index')) #'''
