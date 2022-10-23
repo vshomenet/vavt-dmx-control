@@ -111,6 +111,11 @@ class ConfigHost(object):
 	def get_dmx_val(self, preset, channel):
 		self.init_parse(self.pathDMX)
 		return self.cfg.get(preset, channel)
+		
+	# Получаем список всех DMX каналов и их значения
+	def get_all_dmx_val(self, preset):
+		self.init_parse(self.pathDMX)
+		return self.cfg.items(preset)
 
 	# Установка значений DMX каналов
 	def set_dmx_val(self, preset, channel, val):
@@ -179,6 +184,16 @@ class ConfigHost(object):
 		id = str(uuid.uuid3(uuid.NAMESPACE_X500, str(uuid.getnode())+os_uuid))
 		return id
 
+	# Чтение и запись ошибок
+	def error(self, *args):
+		self.init_parse(self.pathSys)
+		if args[0] is 'read':
+			return self.cfg.get('default', args[1])
+		if args[0] is 'write':
+			self.cfg.set('default', args[1], args[2])
+			self.write(self.pathSys)
+			return None
+		
 	# Вкл Выкл режим debug
 	def debug(self):
 		self.init_parse(self.pathSys)
