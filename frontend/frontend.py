@@ -315,6 +315,7 @@ def update():
 			host.update('update')
 			return redirect(url_for('system', param = 'upgrade'))
 		if upd.reboot.data:
+			host.error('write', 'reboot', 'reboot')
 			return redirect(url_for('system', param = 'reboot'))
 	return render_template("update.html", page = page, menus = menu, text = text, upd = upd, f=f, error = error, foot = foot)
 	
