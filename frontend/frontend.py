@@ -78,6 +78,7 @@ class changePass(FlaskForm):
 class formUpdate(FlaskForm):
 	check_update = SubmitField('Проверить')
 	update = SubmitField('Обновить')
+	reboot = SubmitField('Перезагрузить')
 
 def api_parse(key, param):
 	if key in ['preset']:
@@ -89,7 +90,6 @@ def api_parse(key, param):
 gv = GlobalVar()
 host = ConfigHost(gv.path)
 foot = host.foot
-foot.append("Версия программного обеспечения "+host.version())
 foot.append("ID установки " + host.id_install())
 
 secret_key = os.urandom(32)
@@ -300,10 +300,11 @@ def update():
 		menu = host.main_menu
 		return redirect(url_for('login'))
 	else:
-		page = "Обновление системы"
+		page = "Обслуживание"
 		menu = host.admin_menu
 	upd = formUpdate()
 	text = ''
+	error = host.error('read')
 	f = 'false'
 	if request.method == "POST":
 		if upd.check_update.data:
@@ -312,13 +313,21 @@ def update():
 				f = 'true'
 		if upd.update.data:
 			host.update('update')
-			return redirect(url_for('upgrade'))
-	return render_template("update.html", page = page, menus = menu, text = text, upd = upd, f=f,  foot = foot)
+			return redirect(url_for('system', param = 'upgrade'))
+		if upd.reboot.data:
+			return redirect(url_for('system', param = 'reboot'))
+	return render_template("update.html", page = page, menus = menu, text = text, upd = upd, f=f, error = error, foot = foot)
 	
-#---------- Upgrade ----------
-@app.route('/upgrade')
-def upgrade():
-	return render_template("upgrade.html")
+#---------- System ----------
+@app.route('/system/<param>')
+def system(param):
+	if param == 'upgrade':
+		page = ('Идет обновление системы...','Пожалуйста, Не предпринимайте никаких действий.','15000')
+	elif param == 'reboot':
+		page = ('Перезагрузка системы...','Пожалуйста, Не предпринимайте никаких действий.','60000')
+	else:
+		abort(404)
+	return render_template("system.html", page = page)
 
 #---------- Error 404 ----------
 @app.errorhandler(404)
@@ -357,7 +366,7 @@ def api_control():
 	return jsonify({'error':'incorrect json request'})
 
 #---------- Temp Backdoor ----------
-'''@app.route('/log')
+@app.route('/log')
 def log():
 	session['DMXlogin'] = 'admin'
 	return redirect(url_for('index')) #'''
