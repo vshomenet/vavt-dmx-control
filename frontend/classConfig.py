@@ -9,6 +9,7 @@ import hashlib
 import base64
 import random
 import uuid
+import re
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired

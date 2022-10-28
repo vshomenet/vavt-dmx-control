@@ -1,12 +1,20 @@
 #!/usr/bin/python3
-import os
-import sys
 import socket
 from classConfig import *
 
 gv = GlobalVar()
 host = ConfigHost(gv.path)
 
+def write_error(errors):
+	for error in errors:
+		host.error('write', error, errors[error])
+	return
+
+def sub(com):
+	f = subprocess.Popen(com, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	res = f.communicate()
+	return res
+	
 def reboot():
 	if host.error('read')[2][1] == 'reboot':
 		host.error('write', 'reboot', '')
@@ -18,17 +26,38 @@ def check_network():
 	try:
 		socket.setdefaulttimeout(1)
 		socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((str("8.8.8.8"), int("53")))
-		host.error('write', 'error_inet', '')
-		return
+		err = ''
+		return err
 	except socket.error:
-		host.error('write', 'error_inet', 'Нет подключения к интернет')
-		return
+		err = 'Нет подключения к интернет'
+		return err
 
+def check_stat_proc(proc, result):
+	error = ''
+	if not result[1]:
+		res = re.search( r'Active:.+since', str(result[0]))
+		if not 'running' in res.group():
+			error = 'Служба {proc} не запущена. '.format(proc=proc)
+	else:
+		error = 'Служба {proc} не установлена или удалена. '.format(proc=proc)
+	return error
+	
+def check_system():
+	error = ''
+	sender = sub('systemctl status dmx-sender')
+	error += check_stat_proc('dmx-sender', sender)
+	#telegram = sub('systemctl status dmx-telegram')
+	#error += check_stat_proc('dmx-telegram', telegram)
+	return error
+	
 while True:
+	errors = dict()
 	try:
 		reboot()
 		time.sleep(0.5)
-		check_network()
+		errors['error_inet'] = check_network()
 		time.sleep(0.5)
+		errors['error_sys'] = check_system()
+		write_error(errors)
 	except:
 		time.sleep(2)
