@@ -6,8 +6,7 @@ import requests
 from classConfig import *
 
 gv = GlobalVar()
-host = ConfigHost(gv.path)
-
+host = ConfigHost(gv)
 
 url = 'http://127.0.0.1:5000/api/v1/dmx'
 param = {'preset':'default'}

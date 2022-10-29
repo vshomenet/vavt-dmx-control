@@ -5,23 +5,27 @@ from classConfig import *
 gv = GlobalVar()
 host = ConfigHost(gv.path)
 
+# Запись ошибок в файл
 def write_error(errors):
 	for error in errors:
 		host.error('write', error, errors[error])
 	return
 
+# Вызов суб-процесса
 def sub(com):
 	f = subprocess.Popen(com, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 	res = f.communicate()
 	return res
-	
+
+# Перезагрузка системы
 def reboot():
 	if host.error('read')[2][1] == 'reboot':
 		host.error('write', 'reboot', '')
 		time.sleep(0.5)
 		os.system('reboot')
 	return
-	
+
+# Проверка интернет соединения
 def check_network():
 	try:
 		socket.setdefaulttimeout(1)
@@ -32,6 +36,7 @@ def check_network():
 		err = 'Нет подключения к интернет'
 		return err
 
+# Анализ запущена служба или нет
 def check_stat_proc(proc, result):
 	error = ''
 	if not result[1]:
@@ -41,7 +46,8 @@ def check_stat_proc(proc, result):
 	else:
 		error = 'Служба {proc} не установлена или удалена. '.format(proc=proc)
 	return error
-	
+
+# Функция поиска ошибок в системе
 def check_system():
 	error = ''
 	sender = sub('systemctl status dmx-sender')
@@ -49,7 +55,8 @@ def check_system():
 	#telegram = sub('systemctl status dmx-telegram')
 	#error += check_stat_proc('dmx-telegram', telegram)
 	return error
-	
+
+# Запуск скрипта
 while True:
 	errors = dict()
 	try:

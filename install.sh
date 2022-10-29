@@ -3,7 +3,7 @@ echo "Start install"
 echo "Install software..."
 apt-get update -y && apt-get upgrade -y && apt-get install -y python3 python3-pip git nginx libpcre3 libpcre3-dev #uwsgi uwsgi-plugin-python3
 echo "Install python modules..."
-pip3 install Flask Flask-WTF WTForm Jinja2 uwsgi pyserial dmx485
+pip3 install Flask Flask-WTF WTForm Jinja2 uwsgi pyserial dmx485 aiogram
 echo "Start config system..."
 mkdir -p /opt/dmx
 cp -r frontend/* /opt/dmx
