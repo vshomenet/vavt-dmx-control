@@ -43,7 +43,7 @@ text_status = '\nВы находитесь в разделе состояние 
 # Чтение ошибок
 def error():
 	text = ''
-	errors =host.error('read')
+	errors = host.error('read')
 	text = text + '\nВерсия программного обеспечения: ' + errors[0][1]
 	text = text + '\nРежим отладки: ' + errors[1][1]
 	text = text + '\nКонтроллер управления: ' + (errors[3][1]  if errors[3][1] else 'ok')

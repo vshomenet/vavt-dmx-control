@@ -343,15 +343,20 @@ def page_not_found(e):
 #---------- API ----------
 @app.route('/api/v1/dmx/<string:param>', methods=['GET'])
 def api_info(param):
+	errors = host.error('read')
 	api = dict()
+	api['status'] = dict()
 	api['uuid'] = host.id_install()
-	api['version'] = host.version()
-	api['debug'] = host.debug()
+	api['version'] = errors[0][1]
+	api['debug'] = errors[1][1]
 	api['mode'] = host.read_conf('default', 'mode')
 	api['preset'] = host.read_conf('default', 'preset')
 	api['dmxsender'] = host.read_conf('default', 'dmxsender')
 	api['device'] = host.all_device()
 	api['all_preset'] = ['default'] + host.get_preset()
+	api['status']['sender_error'] = (errors[3][1]  if errors[3][1] else 'ok')
+	api['status']['network_error'] = (errors[4][1]  if errors[4][1] else 'ok')
+	api['status']['sys_error'] = (errors[5][1]  if errors[5][1] else 'ok')
 	if param == 'all':
 		return jsonify(api)
 	elif param in api:
