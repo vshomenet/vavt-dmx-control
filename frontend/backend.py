@@ -23,11 +23,11 @@ def check_port(*args):
 		com = 'cat /sys/class/tty/' + port.split('/dev/')[1] + '/device/uevent'
 		x = sub(com)
 		if x and not 'ftdi' in str(x):
-			host.error('write', 'error_back', 'Несовместимое устройство ' + port)
+			host.error('write', 'error_back', 'Device not supported ' + port)
 			return False
 		return True
 	if not sub('ls ' + port):
-		host.error('write', 'error_back', 'Не удалось открыть порт ' + port + '. Устройство не найдено.')
+		host.error('write', 'error_back', 'Could not open port ' + port + '. Device not found.')
 		return False
 	return True
 
@@ -48,8 +48,8 @@ while True:
 		if str(e) == 'division by zero':
 			pass
 		elif 'could not open port' in str(e):
-			host.error('write', 'error_back', 'Не удалось открыть порт ' + port + '. Устройство не найдено.')
+			host.error('write', 'error_back', 'Could not open port ' + port + '. Device not found.')
 		else:
-			host.error('write', 'error_back', 'Неизвестная ошибка: ' + str(e))
+			host.error('write', 'error_back', 'Unknown error: ' + str(e))
 		time.sleep(1)
 

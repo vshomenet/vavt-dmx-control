@@ -33,7 +33,7 @@ def check_network():
 		err = ''
 		return err
 	except socket.error:
-		err = 'Нет подключения к интернет'
+		err = 'Not connection to internet'
 		return err
 
 # Анализ запущена служба или нет
@@ -42,9 +42,9 @@ def check_stat_proc(proc, result):
 	if not result[1]:
 		res = re.search( r'Active:.+since', str(result[0]))
 		if not 'running' in res.group():
-			error = 'Служба {proc} не запущена. '.format(proc=proc)
+			error = 'Service {proc} not started. '.format(proc=proc)
 	else:
-		error = 'Служба {proc} не установлена или удалена. '.format(proc=proc)
+		error = 'Service {proc} not installed or removed. '.format(proc=proc)
 	return error
 
 # Функция поиска ошибок в системе
