@@ -18,8 +18,6 @@ if not token or re.match(r'^\d+:[a-zA-Z\d]+$', token) is None:
 bot = Bot(token)
 dp = Dispatcher(bot)
 
-list_id = host.telegram('all_users')
-
 text_help = '\nВы находитесь в раделе помощь. \
 			\nСписок доступных команд: \
 			\n/start вызов главного меню \
@@ -43,6 +41,13 @@ text_error_id = '\nУ Вас нет доступа к разделу управ�
 
 text_status = '\nВы находитесь в разделе состояние системы.'
 
+# Получение списка пользователей
+def list_id():
+	name = list()
+	for names in host.telegram('all_users'):
+		name.append(names[0])
+	return name
+	
 # Чтение ошибок
 def error():
 	text = ''
@@ -99,7 +104,7 @@ async def process_start_command(message: types.Message):
 # Ответ на команду preset
 @dp.message_handler(commands='preset')
 async def start_cmd_handler(message: types.Message):
-	if str(message.from_user.id) in list_id:
+	if str(message.from_user.id) in list_id():
 		text = message.from_user.full_name + text_preset  +  host.activate_preset('read')
 		await bot.send_message(message.from_user.id, text, reply_markup = menu_preset('menu'))
 	else:
@@ -127,7 +132,7 @@ async def process_start_command(message: types.Message):
 # Ответ на произвольный текст
 @dp.message_handler()
 async def echo_message(message: types.Message):
-	if message.text in menu_preset('preset') and str(message.from_user.id) in list_id:
+	if message.text in menu_preset('preset') and str(message.from_user.id) in list_id():
 		text = message.from_user.full_name + f'\nПресет {message.text} успешно загружен'
 		host.activate_preset('write', message.text)
 	else:
@@ -137,7 +142,7 @@ async def echo_message(message: types.Message):
 # Обработка кнопок меню
 @dp.callback_query_handler(text=menu_preset('preset') + ['start', 'preset', 'help', 'status'])
 async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
-	if query.data in menu_preset('preset') and str(query.from_user.id) in list_id:
+	if query.data in menu_preset('preset') and str(query.from_user.id) in list_id():
 		await query.answer(f'Загружаем пресет {query.data}')
 		host.activate_preset('write', query.data)
 		text = query.from_user.full_name + f'\nПресет {query.data} успешно загружен'
@@ -146,7 +151,7 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
 		await query.answer(f'Переходим в главное меню')
 		text = query.from_user.full_name + text_menu
 		await bot.send_message(query.from_user.id, text, reply_markup = menu_main())
-	elif query.data == 'preset' and str(query.from_user.id) in list_id :
+	elif query.data == 'preset' and str(query.from_user.id) in list_id():
 		await query.answer(f'Переходим в раздел управления')
 		text = query.from_user.full_name + text_preset +  host.activate_preset('read')
 		await bot.send_message(query.from_user.id, text, reply_markup = menu_preset('menu'))
