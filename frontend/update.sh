@@ -1,5 +1,6 @@
 #!/bin/bash
 sleep 5
+/bin/systemctl stop dmx-telegram
 /bin/systemctl stop dmx-sender
 /bin/systemctl stop dmx-sys
 cd /opt/dmx/conf
@@ -14,4 +15,5 @@ cd /opt/dmx/conf
 rm /tmp/dmx_backup.tar
 /bin/systemctl start dmx-sender
 /bin/systemctl start dmx-sys
+/bin/systemctl start dmx-telegram
 /bin/systemctl restart dmx

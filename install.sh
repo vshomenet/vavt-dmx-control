@@ -30,6 +30,11 @@ cp sys-conf/dmx-sys.service /etc/systemd/system
 /bin/systemctl enable dmx-sys
 /bin/systemctl restart dmx-sys
 sleep 5
+echo "Start config DMX - telegram..."
+cp sys-conf/dmx-telegram.service /etc/systemd/system
+/bin/systemctl enable dmx-telegram
+/bin/systemctl restart dmx-telegram
+sleep 5
 echo "Start config password for system..."
 sleep 5
 echo

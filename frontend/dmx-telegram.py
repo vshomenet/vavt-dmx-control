@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+import re
 import json
 from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher
@@ -8,15 +9,16 @@ from classConfig import *
 
 gv = GlobalVar()
 host = ConfigHost(gv.path)
-token = host.read_conf('telegram', 'token')
+token = host.telegram('read_token')
+gv.create_conf()
 
-if not token:
+if not token or re.match(r'^\d+:[a-zA-Z\d]+$', token) is None:
 	token = '1:q'
 	
 bot = Bot(token)
 dp = Dispatcher(bot)
 
-list_id = list()
+list_id = host.telegram('all_users')
 
 text_help = '\nВы находитесь в раделе помощь. \
 			\nСписок доступных команд: \
@@ -27,7 +29,8 @@ text_help = '\nВы находитесь в раделе помощь. \
 			\n/status показать состояние системы'
 
 text_preset = '\nВы находитесь в разделе управление. \
-				\nКакой пресет вы хотите загрузить?'
+				\nКакой пресет вы хотите загрузить? \
+				\nСейчас активен пресет: '
 				 
 text_menu = '\nВы находитесь в главном меню бота'
 
@@ -44,6 +47,7 @@ text_status = '\nВы находитесь в разделе состояние 
 def error():
 	text = ''
 	errors = host.error('read')
+	text = text + '\nЗагружен пресет: ' + host.activate_preset('read')
 	text = text + '\nВерсия программного обеспечения: ' + errors[0][1]
 	text = text + '\nРежим отладки: ' + errors[1][1]
 	text = text + '\nКонтроллер управления: ' + (errors[3][1]  if errors[3][1] else 'ok')
@@ -96,7 +100,7 @@ async def process_start_command(message: types.Message):
 @dp.message_handler(commands='preset')
 async def start_cmd_handler(message: types.Message):
 	if str(message.from_user.id) in list_id:
-		text = message.from_user.full_name + text_preset
+		text = message.from_user.full_name + text_preset  +  host.activate_preset('read')
 		await bot.send_message(message.from_user.id, text, reply_markup = menu_preset('menu'))
 	else:
 		text = message.from_user.full_name + text_error_id + str(message.from_user.id)
@@ -123,13 +127,19 @@ async def process_start_command(message: types.Message):
 # Ответ на произвольный текст
 @dp.message_handler()
 async def echo_message(message: types.Message):
-	await bot.send_message(message.from_user.id, message.text)
+	if message.text in menu_preset('preset') and str(message.from_user.id) in list_id:
+		text = message.from_user.full_name + f'\nПресет {message.text} успешно загружен'
+		host.activate_preset('write', message.text)
+	else:
+		text = message.from_user.full_name + f'\nНеизвестная команда "{message.text}"'
+	await bot.send_message(message.from_user.id, text, reply_markup = menu_main())
 	
 # Обработка кнопок меню
 @dp.callback_query_handler(text=menu_preset('preset') + ['start', 'preset', 'help', 'status'])
 async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
 	if query.data in menu_preset('preset') and str(query.from_user.id) in list_id:
 		await query.answer(f'Загружаем пресет {query.data}')
+		host.activate_preset('write', query.data)
 		text = query.from_user.full_name + f'\nПресет {query.data} успешно загружен'
 		await bot.send_message(query.from_user.id, text, reply_markup = menu_preset('menu'))
 	elif query.data == 'start':
@@ -138,7 +148,7 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
 		await bot.send_message(query.from_user.id, text, reply_markup = menu_main())
 	elif query.data == 'preset' and str(query.from_user.id) in list_id :
 		await query.answer(f'Переходим в раздел управления')
-		text = query.from_user.full_name + text_preset
+		text = query.from_user.full_name + text_preset +  host.activate_preset('read')
 		await bot.send_message(query.from_user.id, text, reply_markup = menu_preset('menu'))
 	elif query.data == 'help':
 		await query.answer(f'Переходим в раздел помощь')
@@ -157,4 +167,4 @@ if __name__ == '__main__':
 	try:
 		executor.start_polling(dp)
 	except Exception as e:
-		print(e)
+		sys.exit(1)

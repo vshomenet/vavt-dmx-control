@@ -18,16 +18,21 @@ class GlobalVar(object):
 	def __init__(self):
 		self.path = '/media/psf/Home/GIT/vavt-dmx/frontend'
 		#self.path = '/opt/dmx'
+		
+	# Копирование файла sys.conf в оперативную память
+	def create_conf(self):
+		if not os.path.isfile('/dev/shm/sys.conf'):
+			os.system('cp '+self.path+'/conf/sys.conf /dev/shm/')
         
 class ConfigHost(object):
 	def __init__(self, path):
 		self.pathDevice = str(path)+'/conf/device.conf'
 		self.pathHost = str(path)+'/conf/host.conf'
 		self.pathDMX = str(path)+'/conf/dmx.conf'
-		self.pathSys = str(path)+'/conf/sys.conf'
+		self.pathSys = '/dev/shm/sys.conf'
 		self.main_menu = {"index":"Пресеты", "control":"Ручное управление", "login":"Вход"}
 		self.admin_menu = {"index":"Пресеты", "control":"Ручное правление", "config":"Настройки DMX", "cfg_device":"Устройства DMX", \
-						   "update":"Обслуживание", "change_admin":"Администратор", "logout":"Выход"}
+						   "telegram":"Telegram", "update":"Обслуживание", "change_admin":"Администратор", "logout":"Выход"}
 		self.foot = ['© Сергей Семенов sergey@vshome.net']
 
 	# Пароль и пользователь
@@ -194,6 +199,29 @@ class ConfigHost(object):
 			self.cfg.set('default', args[1], args[2])
 			self.write(self.pathSys)
 			return None
+		
+	# Telegram token, пользователи чтение запись
+	def telegram(self, *args):
+		self.init_parse(self.pathHost)
+		if args[0] == 'read_token':
+			return self.cfg.get('telegram', 'token')
+		elif args[0] == 'write_token':
+			self.cfg.set('telegram', 'token', args[1])
+			self.write(self.pathHost)
+		elif args[0] == 'del_token':
+			self.cfg.set('telegram', 'token', '')
+			self.write(self.pathHost)
+		elif args[0] == 'all_users':
+			users = self.cfg.items('telegram')
+			del users[0]
+			return users
+		elif args[0] == 'add_user':
+			self.cfg.set('telegram', args[1], args[2])
+			self.write(self.pathHost)
+		elif args[0] == 'del_user':
+			self.cfg.remove_option('telegram', args[1])
+			self.write(self.pathHost)
+			return
 		
 	# Вкл Выкл режим debug
 	def debug(self):

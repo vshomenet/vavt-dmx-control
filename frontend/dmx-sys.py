@@ -4,6 +4,7 @@ from classConfig import *
 
 gv = GlobalVar()
 host = ConfigHost(gv.path)
+gv.create_conf()
 
 # Запись ошибок в файл
 def write_error(errors):
@@ -52,8 +53,8 @@ def check_system():
 	error = ''
 	sender = sub('systemctl status dmx-sender')
 	error += check_stat_proc('dmx-sender', sender)
-	#telegram = sub('systemctl status dmx-telegram')
-	#error += check_stat_proc('dmx-telegram', telegram)
+	telegram = sub('systemctl status dmx-telegram')
+	error += check_stat_proc('dmx-telegram', telegram)
 	return error
 
 # Запуск скрипта
@@ -61,9 +62,8 @@ while True:
 	errors = dict()
 	try:
 		reboot()
-		time.sleep(0.5)
+		time.sleep(1)
 		errors['error_inet'] = check_network()
-		time.sleep(0.5)
 		errors['error_sys'] = check_system()
 		write_error(errors)
 	except:

@@ -79,6 +79,12 @@ class formUpdate(FlaskForm):
 	check_update = SubmitField('Проверить')
 	update = SubmitField('Обновить')
 	reboot = SubmitField('Перезагрузить')
+	
+# Форма добавить удалить token telegram
+class formTokenTelegram(FlaskForm):
+	name_token = StringField(label=('Введите token вашего телеграм бота:'), validators=[DataRequired()])
+	save_token = SubmitField(label=('Сохранить'))
+	del_token = SubmitField(label=('Удалить'))
 
 def api_parse(key, param):
 	if key in ['preset']:
@@ -91,6 +97,7 @@ gv = GlobalVar()
 host = ConfigHost(gv.path)
 foot = host.foot
 foot.append("ID установки " + host.id_install())
+gv.create_conf()
 
 secret_key = os.urandom(32)
 app = Flask(__name__)
@@ -293,6 +300,18 @@ def logout():
 	session.pop('DMXlogin', None)
 	return redirect(url_for('index'))
 
+#---------- Настройка telegram ----------
+@app.route('/telegram')
+def telegram():
+	if not "DMXlogin" in session:
+		menu = host.main_menu
+		return redirect(url_for('login'))
+	else:
+		menu = host.admin_menu
+	page = "Настройка Telegram"
+	text = ''
+	return render_template("telegram.html", page = page, text = text, menus = menu, foot = foot)
+	
 #---------- Update ----------
 @app.route('/update', methods=['GET', 'POST'])
 def update():
