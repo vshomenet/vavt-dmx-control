@@ -80,11 +80,25 @@ class formUpdate(FlaskForm):
 	update = SubmitField('Обновить')
 	reboot = SubmitField('Перезагрузить')
 	
-# Форма добавить удалить token telegram
+# Форма добавить token telegram
 class formTokenTelegram(FlaskForm):
 	name_token = StringField(label=('Введите token вашего телеграм бота:'), validators=[DataRequired()])
 	save_token = SubmitField(label=('Сохранить'))
+	
+# Форма удалить токен telegram
+class formDelTokenTelegram(FlaskForm):
 	del_token = SubmitField(label=('Удалить'))
+
+# Форма добавить пользователя telegram
+class formAddUserTelegram(FlaskForm):
+	name_user = StringField(label=('Введите имя пользователя:'), validators=[DataRequired()])
+	name_id = StringField(label=('Введите ID пользователя:'), validators=[DataRequired()])
+	save_user = SubmitField(label=('Сохранить'))
+
+# Форма удалить пользователя telegram
+class formDelUserTelegram(FlaskForm):
+	name_user = RadioField(label=('Какого пользователя вы хотите удалить:'), choices=[], validators=[DataRequired()])
+	del_user = SubmitField(label=('Удалить'))
 
 def api_parse(key, param):
 	if key in ['preset']:
@@ -301,7 +315,7 @@ def logout():
 	return redirect(url_for('index'))
 
 #---------- Настройка telegram ----------
-@app.route('/telegram')
+@app.route('/telegram', methods=['GET', 'POST'])
 def telegram():
 	if not "DMXlogin" in session:
 		menu = host.main_menu
@@ -309,8 +323,26 @@ def telegram():
 	else:
 		menu = host.admin_menu
 	page = "Настройка Telegram"
-	text = ''
-	return render_template("telegram.html", page = page, text = text, menus = menu, foot = foot)
+	token = formTokenTelegram()
+	delToken = formDelTokenTelegram()
+	addUser = formAddUserTelegram()
+	delUser = formDelUserTelegram()
+	delUser.name_user.choices = host.telegram('all_users')
+	text = 'Сохраненный токен: ' + host.telegram('read_token')
+	if request.method == "POST":
+		if token.save_token.data:
+			host.telegram('write_token', token.name_token.data)
+			return redirect(url_for('telegram'))
+		if addUser.save_user.data:
+			host.telegram('add_user', addUser.name_id.data, addUser.name_user.data)
+			return redirect(url_for('telegram'))
+		if delUser.del_user.data:
+			host.telegram('del_user', delUser.name_user.data)
+			return redirect(url_for('telegram'))
+		if delToken.del_token.data:
+			host.telegram('del_token')
+			return redirect(url_for('telegram'))
+	return render_template("telegram.html", page = page, text = text, menus = menu, token=token, delToken=delToken, addUser=addUser, delUser=delUser, foot = foot)
 	
 #---------- Update ----------
 @app.route('/update', methods=['GET', 'POST'])

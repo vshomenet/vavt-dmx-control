@@ -27,6 +27,52 @@
 {% endblock %}
 
 {% block content %}
+<div class="form">
+<p>Добавить или изменить токен telegram-бота</p>
+<p>{{ text }}</p>
+<form method="post">
+{{ token.csrf_token() }}
+	<div>
+	{{ token.name_token.label }}
+	{{ token.name_token }}
+	</div>
+	<div>
+	{{ token.save_token}}
+	</div>
+</form>
+<form method="post">
+{{ delToken.csrf_token() }}
+	<div>
+	{{ delToken.del_token}}
+	</div>
+</form>
+<br><hr>
+<p>Добавить пользователя telegram-бота</p>
+<form method="post">
+{{ addUser.csrf_token() }}
+	<div>
+	{{ addUser.name_user.label }}
+	{{ addUser.name_user }}
+	<br>
+	{{ addUser.name_id.label }}
+	{{ addUser.name_id }}
+	</div>
+	<div>
+	{{ addUser.save_user}}
+	</div>
+</form>
+<br><hr>
+<form method="post">
+{{ delUser.csrf_token() }}
+	<div>
+	{{ delUser.name_user.label }}
+	{{ delUser.name_user }}
+	</div>
+	<div>
+	{{ delUser.del_user}}
+	</div>
+</form>
+</div>
 {% endblock %}
 
 {% block foot %}
