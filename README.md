@@ -25,7 +25,7 @@ b) сохранение пресетов (создание сцен).
 * Dmx485 1.2.1 или выше
 * Aiogram 2.22.2 или выше
 
-### Установка
+### Установка на чистую ОС
 1. `apt install git`
 2. `git clone https://github.com/vshomenet/vavt-dmx-control.git`
 3. `cd vavt-dmx-control` 
