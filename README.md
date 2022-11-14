@@ -46,3 +46,10 @@ b) сохранение пресетов (создание сцен).
 * Вызов пресетов
 1. `curl -i -H "Content-Type: application/json" -X POST -d '{"preset":"default"}' http://my_domain/api/v1/dmx` - загрузить пресет "default"
 2. `curl -i -H "Content-Type: application/json" -X POST -d '{"preset":"Red"}' http://my_domain/api/v1/dmx` - загрузить пресет "Red"
+
+### Сброс пароля в веб-интерфейсе
+Подключиться к серверу по ssh или локально в терминале:
+1. Перейти в каталог /opt/dmx \
+`cd /opt/dmx`
+2. Запустить скрипт reset_pass.py \
+`./reset_pass.py` 
