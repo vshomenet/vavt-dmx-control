@@ -59,7 +59,9 @@
 	{{ cDMX.finish_control }}
 	</div>
 {% endif %}
-</form><br><br><hr>
+</form>
+{% if 'admin' in f %}
+<br><br><hr>
 <form method="post">
 {{ fBl.csrf_token() }}
 <p>Сбросить все значения DMX на ноль</p>
@@ -67,6 +69,7 @@
 	{{ fBl.black }}
 </div>
 </form>
+{% endif %}
 </div>
 {% endblock %}
 

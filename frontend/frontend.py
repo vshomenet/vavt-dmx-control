@@ -159,8 +159,10 @@ def index():
 def control():
 	if not "DMXlogin" in session:
 		menu = host.main_menu
+		f = ''
 	else:
 		menu = host.admin_menu
+		f = 'admin'
 	page = "Ручное управление"
 	form = 'select_device'
 	text = ''
@@ -192,7 +194,7 @@ def control():
 			if len(ch_dmx) < 4:
 				host.set_dmx_val(host.read_conf('default', 'preset'), ch_dmx, val[ch_dmx])
 		return redirect(url_for('control'))
-	return render_template("control.html", page = page, text = text, text2=text2, menus = menu, form = form, data = data, cDMX = cDMX, fBl=fBl, host=host, mode=mode, foot = foot)
+	return render_template("control.html", page = page, text = text, text2=text2, menus = menu, f=f, form = form, data = data, cDMX = cDMX, fBl=fBl, host=host, mode=mode, foot = foot)
 
 #---------- Добавить или удалить DMX устройство ----------
 @app.route('/cfg_device', methods=['GET', 'POST'])
@@ -341,6 +343,7 @@ def telegram():
 			return redirect(url_for('telegram'))
 		if delToken.del_token.data:
 			host.telegram('del_token')
+			os.system('systemctl restart dmx-telegram')
 			return redirect(url_for('telegram'))
 	return render_template("telegram.html", page = page, text = text, menus = menu, token=token, delToken=delToken, addUser=addUser, delUser=delUser, foot = foot)
 	
