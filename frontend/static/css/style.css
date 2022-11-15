@@ -73,3 +73,10 @@ h2 {
 	text-align: center;
 	padding: 5px;
 }
+
+h3 {
+	#border: 2px #eee solid;
+	color: whitesmoke;
+	text-align: center;
+	padding: 3px;
+}

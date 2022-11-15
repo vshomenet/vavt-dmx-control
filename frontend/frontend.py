@@ -78,6 +78,27 @@ class changePass(FlaskForm):
 class formUpdate(FlaskForm):
 	check_update = SubmitField('Проверить')
 	update = SubmitField('Обновить')
+	reboot = SubmitField('Перезагрузить')
+	
+# Форма добавить token telegram
+class formTokenTelegram(FlaskForm):
+	name_token = StringField(label=('Введите token вашего телеграм бота:'), validators=[DataRequired()])
+	save_token = SubmitField(label=('Сохранить'))
+	
+# Форма удалить токен telegram
+class formDelTokenTelegram(FlaskForm):
+	del_token = SubmitField(label=('Удалить'))
+
+# Форма добавить пользователя telegram
+class formAddUserTelegram(FlaskForm):
+	name_user = StringField(label=('Введите имя пользователя:'), validators=[DataRequired()])
+	name_id = StringField(label=('Введите ID пользователя:'), validators=[DataRequired()])
+	save_user = SubmitField(label=('Сохранить'))
+
+# Форма удалить пользователя telegram
+class formDelUserTelegram(FlaskForm):
+	name_user = RadioField(label=('Какого пользователя вы хотите удалить:'), choices=[], validators=[DataRequired()])
+	del_user = SubmitField(label=('Удалить'))
 
 def api_parse(key, param):
 	if key in ['preset']:
@@ -89,8 +110,8 @@ def api_parse(key, param):
 gv = GlobalVar()
 host = ConfigHost(gv.path)
 foot = host.foot
-foot.append("Версия программного обеспечения "+host.version())
 foot.append("ID установки " + host.id_install())
+gv.create_conf()
 
 secret_key = os.urandom(32)
 app = Flask(__name__)
@@ -138,8 +159,10 @@ def index():
 def control():
 	if not "DMXlogin" in session:
 		menu = host.main_menu
+		f = ''
 	else:
 		menu = host.admin_menu
+		f = 'admin'
 	page = "Ручное управление"
 	form = 'select_device'
 	text = ''
@@ -171,7 +194,7 @@ def control():
 			if len(ch_dmx) < 4:
 				host.set_dmx_val(host.read_conf('default', 'preset'), ch_dmx, val[ch_dmx])
 		return redirect(url_for('control'))
-	return render_template("control.html", page = page, text = text, text2=text2, menus = menu, form = form, data = data, cDMX = cDMX, fBl=fBl, host=host, mode=mode, foot = foot)
+	return render_template("control.html", page = page, text = text, text2=text2, menus = menu, f=f, form = form, data = data, cDMX = cDMX, fBl=fBl, host=host, mode=mode, foot = foot)
 
 #---------- Добавить или удалить DMX устройство ----------
 @app.route('/cfg_device', methods=['GET', 'POST'])
@@ -293,6 +316,37 @@ def logout():
 	session.pop('DMXlogin', None)
 	return redirect(url_for('index'))
 
+#---------- Настройка telegram ----------
+@app.route('/telegram', methods=['GET', 'POST'])
+def telegram():
+	if not "DMXlogin" in session:
+		menu = host.main_menu
+		return redirect(url_for('login'))
+	else:
+		menu = host.admin_menu
+	page = "Настройка Telegram"
+	token = formTokenTelegram()
+	delToken = formDelTokenTelegram()
+	addUser = formAddUserTelegram()
+	delUser = formDelUserTelegram()
+	delUser.name_user.choices = host.telegram('all_users')
+	text = 'Сохраненный токен: ' + host.telegram('read_token')
+	if request.method == "POST":
+		if token.save_token.data:
+			host.telegram('write_token', token.name_token.data)
+			return redirect(url_for('telegram'))
+		if addUser.save_user.data:
+			host.telegram('add_user', addUser.name_id.data, addUser.name_user.data)
+			return redirect(url_for('telegram'))
+		if delUser.del_user.data:
+			host.telegram('del_user', delUser.name_user.data)
+			return redirect(url_for('telegram'))
+		if delToken.del_token.data:
+			host.telegram('del_token')
+			os.system('systemctl restart dmx-telegram')
+			return redirect(url_for('telegram'))
+	return render_template("telegram.html", page = page, text = text, menus = menu, token=token, delToken=delToken, addUser=addUser, delUser=delUser, foot = foot)
+	
 #---------- Update ----------
 @app.route('/update', methods=['GET', 'POST'])
 def update():
@@ -300,10 +354,11 @@ def update():
 		menu = host.main_menu
 		return redirect(url_for('login'))
 	else:
-		page = "Обновление системы"
+		page = "Обслуживание"
 		menu = host.admin_menu
 	upd = formUpdate()
 	text = ''
+	error = host.error('read')
 	f = 'false'
 	if request.method == "POST":
 		if upd.check_update.data:
@@ -312,13 +367,22 @@ def update():
 				f = 'true'
 		if upd.update.data:
 			host.update('update')
-			return redirect(url_for('upgrade'))
-	return render_template("update.html", page = page, menus = menu, text = text, upd = upd, f=f,  foot = foot)
+			return redirect(url_for('system', param = 'upgrade'))
+		if upd.reboot.data:
+			host.error('write', 'reboot', 'reboot')
+			return redirect(url_for('system', param = 'reboot'))
+	return render_template("update.html", page = page, menus = menu, text = text, upd = upd, f=f, error = error, foot = foot)
 	
-#---------- Upgrade ----------
-@app.route('/upgrade')
-def upgrade():
-	return render_template("upgrade.html")
+#---------- System ----------
+@app.route('/system/<param>')
+def system(param):
+	if param == 'upgrade':
+		page = ('Идет обновление системы...','Пожалуйста, Не предпринимайте никаких действий.','15000')
+	elif param == 'reboot':
+		page = ('Перезагрузка системы...','Пожалуйста, Не предпринимайте никаких действий.','60000')
+	else:
+		abort(404)
+	return render_template("system.html", page = page)
 
 #---------- Error 404 ----------
 @app.errorhandler(404)
@@ -333,15 +397,20 @@ def page_not_found(e):
 #---------- API ----------
 @app.route('/api/v1/dmx/<string:param>', methods=['GET'])
 def api_info(param):
+	errors = host.error('read')
 	api = dict()
+	api['status'] = dict()
 	api['uuid'] = host.id_install()
-	api['version'] = host.version()
-	api['debug'] = host.debug()
+	api['version'] = errors[0][1]
+	api['debug'] = errors[1][1]
 	api['mode'] = host.read_conf('default', 'mode')
 	api['preset'] = host.read_conf('default', 'preset')
 	api['dmxsender'] = host.read_conf('default', 'dmxsender')
 	api['device'] = host.all_device()
 	api['all_preset'] = ['default'] + host.get_preset()
+	api['status']['sender_error'] = (errors[3][1]  if errors[3][1] else 'ok')
+	api['status']['network_error'] = (errors[4][1]  if errors[4][1] else 'ok')
+	api['status']['sys_error'] = (errors[5][1]  if errors[5][1] else 'ok')
 	if param == 'all':
 		return jsonify(api)
 	elif param in api:

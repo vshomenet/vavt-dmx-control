@@ -8,13 +8,13 @@
 
 {% block container %}
 	<div class="container">
-    	<h1> Идет обновление системы...</h1>
-		<h2>Пожалуйста, Не предпринимайте никаких действий.</h2>
+    	<h1> {{ page.0 }}</h1>
+		<h2>{{ page.1 }}</h2>
 		<br>
 		<center><img src="/static/loading.gif"></center>
 	</div>
  <script type="text/JavaScript">
-	  setTimeout("location.href = '/';",15000);
+	  setTimeout("location.href = '/';", {{ page.2 }} );
  </script>
 {% endblock %}
 

@@ -22,9 +22,16 @@
 
 {% block container %}
 	<div class="container">
-    	<h1> {{ page }} <br> {{ text.0 }} </h1>
+    	<h1> {{ page }} </h1>
 	</div>
 <div class="form">
+	<h3> Состояние системы </h3>
+	<a>Версия программного обеспечения: {% if error.0.1 %} {{ error.0.1 }} {% else %} ok {% endif %}</a><br>
+	<a>Режим отладки: {% if error.1.1 %} {{ error.1.1 }} {% else %} ok {% endif %}</a><br>
+	<a>Контроллер управления: {% if error.3.1 %} {{ error.3.1 }} {% else %} ok {% endif %}</a><br>
+	<a>Сеть: {% if error.4.1 %} {{ error.4.1 }} {% else %} ok {% endif %}</a><br>
+	<a>Система: {% if error.5.1 %} {{ error.5.1 }} {% else %} ok {% endif %}</a><br>
+	<hr><h3> Обновление системы <br> {{ text.0 }} </h3>
 <form method="post" onsubmit="ShowLoading()">
 	{{ upd.csrf_token() }}
 	<div>
@@ -36,6 +43,10 @@
 	{{ upd.update }}
 	</div>
 	{% endif %}
+	<hr><h3> Перезагрузить систему </h3>
+	<div>
+	{{ upd.reboot }}
+	</div>
 </form>
 </div>
 {% endblock %}
