@@ -112,6 +112,7 @@ host = ConfigHost(gv.path)
 foot = host.foot
 foot.append("ID установки " + host.id_install())
 gv.create_conf()
+url = host.url()
 
 secret_key = os.urandom(32)
 app = Flask(__name__)
@@ -152,7 +153,7 @@ def index():
 			host.change_preset('save', data, host.activate_preset('read'))
 			#host.activate_preset('write', data)
 			return redirect(url_for('index'))
-	return render_template("preset.html", page = page, text = text, menus = menu, form = form, aPr=aPr, sPr = sPr, foot = foot)
+	return render_template("preset.html", page = page, text = text, menus = menu, form = form, aPr=aPr, sPr = sPr, foot = foot, url = url)
 
 #---------- Управление ----------
 @app.route('/control', methods=['GET', 'POST'])
@@ -194,7 +195,7 @@ def control():
 			if len(ch_dmx) < 4:
 				host.set_dmx_val(host.read_conf('default', 'preset'), ch_dmx, val[ch_dmx])
 		return redirect(url_for('control'))
-	return render_template("control.html", page = page, text = text, text2=text2, menus = menu, f=f, form = form, data = data, cDMX = cDMX, fBl=fBl, host=host, mode=mode, foot = foot)
+	return render_template("control.html", page = page, text = text, text2=text2, menus = menu, f=f, form = form, data = data, cDMX = cDMX, fBl=fBl, host=host, mode=mode, foot = foot, url = url)
 
 #---------- Добавить или удалить DMX устройство ----------
 @app.route('/cfg_device', methods=['GET', 'POST'])
@@ -217,7 +218,7 @@ def cfg_device():
 			max_channel = addDev.max_channel.data
 			if name_device in host.all_device():
 				text = "Ошибка сохранения настроек Устройство с таким именем уже есть"
-				return render_template("cfg_device.html", page=page, menus=menu, text=text, addDev=addDev, delDev=delDev, foot=foot)
+				return render_template("cfg_device.html", page=page, menus=menu, text=text, addDev=addDev, delDev=delDev, foot=foot, url = url)
 			host.add_device(name_device, mode_device, first_channel, max_channel)
 			return redirect(url_for('cfg_device'))
 		if delDev.del_dev.data and len(host.all_device())>=1:
@@ -226,7 +227,7 @@ def cfg_device():
 			session.pop('DMXcontrol', None)
 			host.del_device(name_device)
 			return redirect('/cfg_device')
-	return render_template("cfg_device.html", page = page, menus = menu, text=text, addDev=addDev, delDev=delDev, foot = foot)
+	return render_template("cfg_device.html", page = page, menus = menu, text=text, addDev=addDev, delDev=delDev, foot = foot, url = url)
 
 #---------- Переименовать каналы DMX ----------
 @app.route('/config', methods=['GET', 'POST'])
@@ -262,7 +263,7 @@ def config():
 		if changeDMX.finish_edit.data:
 			session.pop('DMXdevice', None)
 			return redirect(url_for('config'))
-	return render_template("config.html", page = page, form = form, text = text, selDMX = selDMX, changeDMX = changeDMX, menus = menu, foot = foot)
+	return render_template("config.html", page = page, form = form, text = text, selDMX = selDMX, changeDMX = changeDMX, menus = menu, foot = foot, url = url)
 
 #---------- Авторизация ----------
 @app.route('/login', methods=['GET', 'POST'])
@@ -282,7 +283,7 @@ def login():
 			menu = host.admin_menu
 			session['DMXlogin'] = 'admin'
 			return redirect(url_for('index'))
-	return render_template("admin.html", page = page, menus = menu, data=data, lgn=lgn, foot = foot)
+	return render_template("admin.html", page = page, menus = menu, data=data, lgn=lgn, foot = foot, url = url)
 
 #---------- Смена пароля и имени пользователя ----------
 @app.route('/change_admin', methods=['GET', 'POST'])
@@ -308,7 +309,7 @@ def change_admin():
 			login = ch_admin.login.data
 			host.passwd('save', login, None)
 			text = "Имя пользователя успешно изменено"
-	return render_template("admin.html", page = page, menus = menu, text=text, data=data, ch_pass=ch_pass, ch_admin=ch_admin, foot = foot)
+	return render_template("admin.html", page = page, menus = menu, text=text, data=data, ch_pass=ch_pass, ch_admin=ch_admin, foot = foot, url = url)
 
 #---------- Logout ----------
 @app.route('/logout')
@@ -345,7 +346,7 @@ def telegram():
 			host.telegram('del_token')
 			os.system('systemctl restart dmx-telegram')
 			return redirect(url_for('telegram'))
-	return render_template("telegram.html", page = page, text = text, menus = menu, token=token, delToken=delToken, addUser=addUser, delUser=delUser, foot = foot)
+	return render_template("telegram.html", page = page, text = text, menus = menu, token=token, delToken=delToken, addUser=addUser, delUser=delUser, foot = foot, url = url)
 	
 #---------- Update ----------
 @app.route('/update', methods=['GET', 'POST'])
@@ -371,7 +372,7 @@ def update():
 		if upd.reboot.data:
 			host.error('write', 'reboot', 'reboot')
 			return redirect(url_for('system', param = 'reboot'))
-	return render_template("update.html", page = page, menus = menu, text = text, upd = upd, f=f, error = error, foot = foot)
+	return render_template("update.html", page = page, menus = menu, text = text, upd = upd, f=f, error = error, foot = foot, url = url)
 	
 #---------- System ----------
 @app.route('/system/<param>')
@@ -392,7 +393,7 @@ def page_not_found(e):
 	else:
 		menu = host.admin_menu
 	page = ''
-	return render_template('404.html', page = page, menus = menu,  foot = foot), 404
+	return render_template('404.html', page = page, menus = menu,  foot = foot, url = url), 404
 
 #---------- API ----------
 @app.route('/api/v1/dmx/<string:param>', methods=['GET'])
