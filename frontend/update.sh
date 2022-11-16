@@ -13,6 +13,7 @@ cp -r /tmp/dmx/frontend/* /opt/dmx
 cd /opt/dmx/conf
 /usr/bin/tar -xvf /tmp/dmx_backup.tar
 rm /tmp/dmx_backup.tar
+rm /dev/shm/sys.conf
 /bin/systemctl start dmx-sender
 /bin/systemctl start dmx-sys
 /bin/systemctl start dmx-telegram
