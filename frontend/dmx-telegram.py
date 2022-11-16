@@ -11,6 +11,7 @@ gv = GlobalVar()
 host = ConfigHost(gv.path)
 token = host.telegram('read_token')
 gv.create_conf()
+url = host.url()
 
 if not token or re.match(r'^\d+:[a-zA-Z\d]+$', token) is None:
 	token = '1:q'
@@ -91,7 +92,7 @@ def menu_help():
 	btn_menu = (('Главное меню', 'start'), ('Управление','preset'), ('Состояние системы', 'status'))
 	list_button = (InlineKeyboardButton(text, callback_data=data) for text, data in btn_menu)
 	keyboard.add(*list_button)
-	keyboard.add(InlineKeyboardButton('Сайт проекта', url='https://github.com/vshomenet/vavt-dmx-control'))
+	keyboard.add(InlineKeyboardButton('Сайт проекта', url=url ))
 	return keyboard
 	
 # Ответ на команду start

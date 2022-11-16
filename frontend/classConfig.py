@@ -180,6 +180,11 @@ class ConfigHost(object):
 	def version(self):
 		self.init_parse(self.pathSys)
 		return self.cfg.get('default', 'version')
+		
+	# Сссылка на проект
+	def url(self):
+		self.init_parse(self.pathSys)
+		return self.cfg.get('default', 'url')
 	
 	# UUID установки
 	def id_install(self):
@@ -259,7 +264,7 @@ class ConfigHost(object):
 			if os.path.exists("/tmp/dmx"):
 				sub("rm -rf /tmp/dmx")
 			sub("mkdir /tmp/dmx")
-			com_clone = "git clone https://github.com/vshomenet/vavt-dmx-control.git /tmp/dmx"
+			com_clone = "git clone " + self.url() + ".git /tmp/dmx"
 			clone = sub(com_clone)
 			res = check_ver()
 		if com_update == "update":
