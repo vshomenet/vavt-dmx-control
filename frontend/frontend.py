@@ -3,11 +3,12 @@ import os
 import sys
 import time
 import subprocess
-from flask import Flask, render_template, request, url_for, flash, redirect, session, jsonify
+from flask import Flask, render_template, request, url_for, flash, redirect, session, jsonify, send_file
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, RadioField, PasswordField, BooleanField, FormField, Form, DecimalRangeField, IntegerRangeField
 from wtforms.validators import DataRequired, InputRequired, ValidationError, Email, EqualTo, Length
 from werkzeug.exceptions import abort
+from werkzeug.utils import secure_filename
 from classConfig import *
 
 # форма добавить DMX устройство
@@ -100,25 +101,36 @@ class formDelUserTelegram(FlaskForm):
 	name_user = RadioField(label=('Какого пользователя вы хотите удалить:'), choices=[], validators=[DataRequired()])
 	del_user = SubmitField(label=('Удалить'))
 
+# Парсинг запроса API активация пресета
 def api_parse(key, param):
 	if key in ['preset']:
 		if key == 'preset' and param in ['default'] + host.get_preset():
 			host.activate_preset('write', param)
 			return True
 	return False
+
+# Проверка файла buckup на соответствие
+def check_backup(filename):
+	name = filename.split('.')
+	if len(name) > 1:
+		if name[1] == 'dmx':
+			return True
+	return False
 	
 gv = GlobalVar()
 host = ConfigHost(gv.path)
 foot = host.foot
-foot.append("ID установки " + host.id_install())
+foot.append('ID установки ' + host.id_install())
 gv.create_conf()
 url = host.url()
 
+upload_folder = gv.path + '/download'
 secret_key = os.urandom(32)
 app = Flask(__name__)
-app.config['FLASK_APP'] = "index"
+app.config['FLASK_APP'] = 'index'
 app.config['DEBUG'] = host.debug()
 app.config['SECRET_KEY'] = secret_key
+app.config['UPLOAD_FOLDER'] = upload_folder
 
 #---------- Главная страница ----------
 @app.route('/', methods=['GET', 'POST'])
@@ -129,7 +141,7 @@ def index():
 	else:
 		menu = host.admin_menu
 		form = 'admin'
-	page = "Пресеты"
+	page = 'Пресеты'
 	text = 'Загружен пресет ' + host.activate_preset('read')
 	data = ''
 	aPr = activePreset()
@@ -164,7 +176,7 @@ def control():
 	else:
 		menu = host.admin_menu
 		f = 'admin'
-	page = "Ручное управление"
+	page = 'Ручное управление'
 	form = 'select_device'
 	text = ''
 	mode = ''
@@ -205,7 +217,7 @@ def cfg_device():
 		return redirect(url_for('login'))
 	else:
 		menu = host.admin_menu
-	page = "Добавить, удалить устройство"
+	page = 'Добавить, удалить устройство'
 	text = ''
 	addDev = addDevice()
 	delDev = delDevice()
@@ -217,7 +229,7 @@ def cfg_device():
 			first_channel = addDev.first_channel.data
 			max_channel = addDev.max_channel.data
 			if name_device in host.all_device():
-				text = "Ошибка сохранения настроек Устройство с таким именем уже есть"
+				text = 'Ошибка сохранения настроек Устройство с таким именем уже есть'
 				return render_template("cfg_device.html", page=page, menus=menu, text=text, addDev=addDev, delDev=delDev, foot=foot, url = url)
 			host.add_device(name_device, mode_device, first_channel, max_channel)
 			return redirect(url_for('cfg_device'))
@@ -237,7 +249,7 @@ def config():
 		return redirect(url_for('login'))
 	else:
 		menu = host.admin_menu
-	page = "Переименование DMX каналов в приборах"
+	page = 'Переименование DMX каналов в приборах'
 	text = ''
 	form = 'select_device'
 	selDMX = selectChangeDMX()
@@ -272,7 +284,8 @@ def login():
 		menu = host.main_menu
 	else:
 		menu = host.admin_menu
-	page = "Авторизация"
+		return redirect(url_for('index'))
+	page = 'Авторизация'
 	data = 'login'
 	text = ''
 	lgn = formLogin()
@@ -293,7 +306,7 @@ def change_admin():
 		return redirect(url_for('login'))
 	else:
 		menu = host.admin_menu
-	page = "Смена имени пользователя и пароля"
+	page = 'Смена имени пользователя и пароля'
 	data = 'ch_admin'
 	text = ''
 	ch_pass = changePass()
@@ -308,7 +321,7 @@ def change_admin():
 		if ch_admin.login.data:
 			login = ch_admin.login.data
 			host.passwd('save', login, None)
-			text = "Имя пользователя успешно изменено"
+			text = 'Имя пользователя успешно изменено'
 	return render_template("admin.html", page = page, menus = menu, text=text, data=data, ch_pass=ch_pass, ch_admin=ch_admin, foot = foot, url = url)
 
 #---------- Logout ----------
@@ -325,7 +338,7 @@ def telegram():
 		return redirect(url_for('login'))
 	else:
 		menu = host.admin_menu
-	page = "Настройка Telegram"
+	page = 'Настройка Telegram'
 	token = formTokenTelegram()
 	delToken = formDelTokenTelegram()
 	addUser = formAddUserTelegram()
@@ -355,7 +368,7 @@ def update():
 		menu = host.main_menu
 		return redirect(url_for('login'))
 	else:
-		page = "Обслуживание"
+		page = 'Обслуживание'
 		menu = host.admin_menu
 	upd = formUpdate()
 	text = ''
@@ -381,9 +394,57 @@ def system(param):
 		page = ('Идет обновление системы...','Пожалуйста, Не предпринимайте никаких действий.','15000')
 	elif param == 'reboot':
 		page = ('Перезагрузка системы...','Пожалуйста, Не предпринимайте никаких действий.','60000')
+	elif 'backup' in param:
+		file = param.split('`')[0]
+		if gv.backup('restore', file):
+			page = (f'Восстановление настроек из файла {file}...','Пожалуйста, Не предпринимайте никаких действий.','7000')
+		else:
+			page = (f'Файл {file} испорчен.',' Восстановление последней рабочей версии...','7000')
 	else:
 		abort(404)
 	return render_template("system.html", page = page)
+
+#---------- Backup ----------
+@app.route('/backup', methods=['GET', 'POST'])
+def backup():
+	if not "DMXlogin" in session:
+		menu = host.main_menu
+		return redirect(url_for('login'))
+	else:
+		menu = host.admin_menu
+	page = 'Резервная копия настроек'
+	file = ''
+	text = ''
+	file_name = 'DMXbackup_' + time.strftime("%H-%M_%d-%m-%Y") + '.dmx'
+	if gv.backup('create', file_name):
+		file = file_name
+	text = ''
+	if request.method == "POST":
+		backup = request.files['backup']
+		bytes = int(request.headers.get('content-length'))
+		if not backup:
+			text = 'Файл резервной копии настроек не выбран'
+			return render_template("backup.html", page = page, menus = menu, text = text, file = file, foot = foot, url = url)
+		elif bytes >= 3000:
+			text = 'Файл слишком большой для резервной копии настроек.'
+			return render_template("backup.html", page = page, menus = menu, text = text, file = file, foot = foot, url = url)
+		else:
+			filename = secure_filename(backup.filename)
+			if check_backup(filename):
+				backup.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+				return redirect(url_for('system', param = filename+'`backup'))
+			else:
+				text = f'Файл {filename} не является резервной копией настроек.'
+				return render_template("backup.html", page = page, menus = menu, text = text, file = file, foot = foot, url = url)
+	return render_template("backup.html", page = page, menus = menu, text = text, file = file, foot = foot, url = url)
+	
+#---------- Download ----------
+@app.route('/download/<path:files>', methods=['GET', 'POST'])
+def download(files):
+	path = gv.path + '/download/' + files
+	if os.path.exists(path):
+		return send_file(path, as_attachment=True)
+	abort(404)
 
 #---------- Error 404 ----------
 @app.errorhandler(404)

@@ -23,7 +23,30 @@ class GlobalVar(object):
 	def create_conf(self):
 		if not os.path.isfile('/dev/shm/sys.conf'):
 			os.system('cp '+self.path+'/conf/sys.conf /dev/shm/')
-        
+			
+	# Backup создание и восстановление конфигурации
+	def backup(self, param, file_name):
+		if param == 'create':
+			os.system('rm -r ' + self.path + '/download/* > /dev/null 2>&1')
+			i = os.system('cp -r ' + self.path + '/conf ' + self.path + '/download > /dev/null 2>&1')
+			i += os.system('rm ' + self.path + '/download/conf/sys.conf > /dev/null 2>&1')
+			i += os.system('tar -cjf '+ self.path + '/download/' + file_name + ' -C ' + self.path + '/download/ conf > /dev/null 2>&1')
+			i += os.system('rm -r ' + self.path + '/download/conf > /dev/null 2>&1')
+			if i == 0:
+				return True
+			return False
+		if param == 'restore':
+			com = self.path + '/restart.sh'
+			f = subprocess.Popen(com , shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			i = os.system('tar -xjf '+ self.path + '/download/' + file_name + ' -C ' + self.path + '/download > /dev/null 2>&1')
+			if i == 0:
+				i += os.system('cp '+ self.path + '/download/conf/* ' + self.path + '/conf/ > /dev/null 2>&1')
+				os.system('rm -r ' + self.path + '/download/* > /dev/null 2>&1')
+				if i == 0:
+					return True
+			os.system('rm -r ' + self.path + '/download/* > /dev/null 2>&1')
+			return False
+
 class ConfigHost(object):
 	def __init__(self, path):
 		self.pathDevice = str(path)+'/conf/device.conf'
@@ -32,7 +55,7 @@ class ConfigHost(object):
 		self.pathSys = '/dev/shm/sys.conf'
 		self.main_menu = {"index":"Пресеты", "control":"Ручное управление", "login":"Вход"}
 		self.admin_menu = {"index":"Пресеты", "control":"Ручное правление", "config":"Настройки DMX", "cfg_device":"Устройства DMX", \
-						   "telegram":"Telegram", "update":"Обслуживание", "change_admin":"Администратор", "logout":"Выход"}
+						   "telegram":"Telegram", "update":"Обслуживание", "backup":"Резервная копия", "change_admin":"Администратор"}
 		self.foot = ['© Сергей Семенов sergey@vshome.net']
 
 	# Пароль и пользователь
