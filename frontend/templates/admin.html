@@ -40,6 +40,9 @@
     </div>
 </form>
 {% elif 'ch_admin' in data %}
+<br>
+<a href="logout">Выход</a>
+<br><br><hr>
 <form method="post">
    {{ ch_pass.csrf_token() }}
    <div>

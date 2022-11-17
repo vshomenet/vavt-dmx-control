@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}
+	{{ page }}
+{% endblock %}
+
+{% block menu %}
+	<div class="menu">
+	<table id="main_menu">
+	<tr>
+	{% for key, value in menus.items() %}
+		<td>
+		<a href= "{{url_for(key)}}" >
+            <h2>{{ value }}</h2>
+        </a>
+		</td>
+	{% endfor %}
+	</tr>
+	</table>
+	</div>
+{% endblock %}
+
+{% block container %}
+<div class="container">
+	<h1> {{ page }} </h1>
+</div>
+<div>
+	<h2> {{ text }} </h2>
+</div>
+<div class="form">
+<br>
+{% if file %}
+<a href="download/{{ file }}">Скачать файл настроек.</a>
+{% else %}
+<a>Внутренняя ошибка сервера. Не удалось создать резервную копию.</a>
+{% endif %}
+<br><br><hr>
+<a>Загрузить файл настроек.</a>
+<br><br>
+<form method="post" enctype=multipart/form-data>
+  <input type="file" name="backup">
+  <input type="submit" value="Загрузить">
+</form>
+</div>
+{% endblock %}
+
+{% block content %}
+{% endblock %}
+
+{% block foot %}
+	<div class="foot">
+		<a>
+		{% for txt in foot %}
+			{{ txt }}
+			<br>
+		{% endfor %}
+		</a>
+		<a href="{{ url }}" target="_blank">Сайт проекта</a>
+	</div>
+{% endblock %}
