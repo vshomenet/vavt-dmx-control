@@ -397,9 +397,9 @@ def system(param):
 	elif 'backup' in param:
 		file = param.split('`')[0]
 		if gv.backup('restore', file):
-			page = (f'Восстановление настроек из файла {file}...','Пожалуйста, Не предпринимайте никаких действий.','5000')
+			page = (f'Восстановление настроек из файла {file}...','Пожалуйста, Не предпринимайте никаких действий.','7000')
 		else:
-			page = (f'Файл {file} испорчен.',' Восстановление последней рабочей версии...','5000')
+			page = (f'Файл {file} испорчен.',' Восстановление последней рабочей версии...','7000')
 	else:
 		abort(404)
 	return render_template("system.html", page = page)
@@ -421,8 +421,12 @@ def backup():
 	text = ''
 	if request.method == "POST":
 		backup = request.files['backup']
+		bytes = int(request.headers.get('content-length'))
 		if not backup:
 			text = 'Файл резервной копии настроек не выбран'
+			return render_template("backup.html", page = page, menus = menu, text = text, file = file, foot = foot, url = url)
+		elif bytes >= 3000:
+			text = 'Файл слишком большой для резервной копии настроек.'
 			return render_template("backup.html", page = page, menus = menu, text = text, file = file, foot = foot, url = url)
 		else:
 			filename = secure_filename(backup.filename)

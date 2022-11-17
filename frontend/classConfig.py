@@ -16,8 +16,8 @@ from wtforms.validators import DataRequired
 
 class GlobalVar(object):
 	def __init__(self):
-		self.path = '/media/psf/Home/GIT/vavt-dmx/frontend'
-		#self.path = '/opt/dmx'
+		#self.path = '/media/psf/Home/GIT/vavt-dmx/frontend'
+		self.path = '/opt/dmx'
 		
 	# Копирование файла sys.conf в оперативную память
 	def create_conf(self):
@@ -36,6 +36,8 @@ class GlobalVar(object):
 				return True
 			return False
 		if param == 'restore':
+			com = self.path + '/restart.sh'
+			f = subprocess.Popen(com , shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 			i = os.system('tar -xjf '+ self.path + '/download/' + file_name + ' -C ' + self.path + '/download > /dev/null 2>&1')
 			if i == 0:
 				i += os.system('cp '+ self.path + '/download/conf/* ' + self.path + '/conf/ > /dev/null 2>&1')
