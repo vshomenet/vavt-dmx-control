@@ -24,6 +24,12 @@ class GlobalVar(object):
 		if not os.path.isfile('/dev/shm/sys.conf'):
 			os.system('cp '+self.path+'/conf/sys.conf /dev/shm/')
 			
+	# Рестарт всех сервисов
+	def restart(self):
+		com = self.path + '/restart.sh'
+		f = subprocess.Popen(com , shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		return True
+			
 	# Backup создание и восстановление конфигурации
 	def backup(self, param, file_name):
 		if param == 'create':
@@ -36,8 +42,7 @@ class GlobalVar(object):
 				return True
 			return False
 		if param == 'restore':
-			com = self.path + '/restart.sh'
-			f = subprocess.Popen(com , shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			self.restart()
 			i = os.system('tar -xjf '+ self.path + '/download/' + file_name + ' -C ' + self.path + '/download > /dev/null 2>&1')
 			if i == 0:
 				i += os.system('cp '+ self.path + '/download/conf/* ' + self.path + '/conf/ > /dev/null 2>&1')

@@ -79,6 +79,7 @@ class changePass(FlaskForm):
 class formUpdate(FlaskForm):
 	check_update = SubmitField('Проверить')
 	update = SubmitField('Обновить')
+	reset = SubmitField('Перезапустить')
 	reboot = SubmitField('Перезагрузить')
 	
 # Форма добавить token telegram
@@ -180,7 +181,7 @@ def control():
 	form = 'select_device'
 	text = ''
 	mode = ''
-	text2 = 'Загружен пресет ' + host.activate_preset('read')
+	text2 = 'Вы редактируете пресет ' + host.activate_preset('read')
 	data = host.all_device()
 	cDMX = controlDMX()
 	fBl = formBlack()
@@ -386,6 +387,9 @@ def update():
 		if upd.reboot.data:
 			host.error('write', 'reboot', 'reboot')
 			return redirect(url_for('system', param = 'reboot'))
+		if upd.reset.data:
+			gv.restart()
+			return redirect(url_for('system', param = 'reset'))
 	return render_template("update.html", page = page, menus = menu, text = text, upd = upd, f=f, error = error, foot = foot, url = url)
 	
 #---------- System ----------
@@ -395,6 +399,8 @@ def system(param):
 		page = ('Идет обновление системы...','Пожалуйста, Не предпринимайте никаких действий.','15000')
 	elif param == 'reboot':
 		page = ('Перезагрузка системы...','Пожалуйста, Не предпринимайте никаких действий.','60000')
+	elif param == 'reset':
+		page = ('Перезапуск всех служб...','Пожалуйста, Не предпринимайте никаких действий.','7000')
 	elif 'backup' in param:
 		file = param.split('`')[0]
 		if gv.backup('restore', file):
