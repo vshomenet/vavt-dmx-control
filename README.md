@@ -74,3 +74,6 @@ b) сохранение пресетов (создание сцен); \
 `None` -  игнорировать данный параметр \
 `reset` -  перезапустить все сервисы на сервере \
 `reboot` - перезагрузить сервер
+
+### Пожертвовать на поддержку проекта
+[![Ю money](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://yoomoney.ru/fundraise/BipPxgNsYWg.221118)
