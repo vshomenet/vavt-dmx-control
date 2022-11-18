@@ -28,7 +28,8 @@
 	<h2> {{ text }} </h2>
 </div>
 <div class="form">
-<br>
+<a>Резервная копия настроек</a>
+<br><br>
 {% if file %}
 <a href="download/{{ file }}">Скачать файл настроек.</a>
 {% else %}
@@ -36,6 +37,13 @@
 {% endif %}
 <br><br><hr>
 <a>Загрузить файл настроек.</a>
+<br><br>
+<form method="post" enctype=multipart/form-data>
+  <input type="file" name="backup">
+  <input type="submit" value="Загрузить">
+</form>
+<br><br><hr>
+<a>Настройка API</a>
 <br><br>
 <form method="post" enctype=multipart/form-data>
   <input type="file" name="backup">

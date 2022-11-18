@@ -16,8 +16,8 @@ from wtforms.validators import DataRequired
 
 class GlobalVar(object):
 	def __init__(self):
-		#self.path = '/media/psf/Home/GIT/vavt-dmx/frontend'
-		self.path = '/opt/dmx'
+		self.path = '/media/psf/Home/GIT/vavt-dmx/frontend'
+		#self.path = '/opt/dmx'
 		
 	# Копирование файла sys.conf в оперативную память
 	def create_conf(self):
@@ -60,7 +60,7 @@ class ConfigHost(object):
 		self.pathSys = '/dev/shm/sys.conf'
 		self.main_menu = {"index":"Пресеты", "control":"Ручное управление", "login":"Вход"}
 		self.admin_menu = {"index":"Пресеты", "control":"Ручное правление", "config":"Настройки DMX", "cfg_device":"Устройства DMX", \
-						   "telegram":"Telegram", "update":"Обслуживание", "backup":"Резервная копия", "change_admin":"Администратор"}
+						   "telegram":"Telegram", "update":"Обслуживание", "setting":"Настройки", "change_admin":"Администратор"}
 		self.foot = ['© Сергей Семенов sergey@vshome.net']
 
 	# Пароль и пользователь
@@ -255,6 +255,19 @@ class ConfigHost(object):
 			self.cfg.remove_option('telegram', args[1])
 			self.write(self.pathHost)
 			return
+	
+	# Вкл Выкл API
+	def api(self, *args):
+		self.init_parse(self.pathHost)
+		if  args[0] == 'enable':
+			self.cfg.set('default', 'api', 'True')
+			self.write(self.pathHost)
+		if args[0] == 'disable':
+			self.cfg.set('default', 'api', 'False')
+			self.write(self.pathHost)
+		if args[0] == 'read':
+			return self.cfg.get('default', 'api')
+		return
 		
 	# Вкл Выкл режим debug
 	def debug(self):

@@ -103,12 +103,27 @@ class formDelUserTelegram(FlaskForm):
 	del_user = SubmitField(label=('Удалить'))
 
 # Парсинг запроса API активация пресета
-def api_parse(key, param):
-	if key in ['preset']:
-		if key == 'preset' and param in ['default'] + host.get_preset():
-			host.activate_preset('write', param)
-			return True
-	return False
+def api_parse(data):
+	try:
+		if host.passwd('check', data['login'], data['pass']):
+			if data['system'].lower() in ['reset', 'reboot']:
+				if data['system'].lower() == 'reset':
+					gv.restart()
+				if data['system'].lower() == 'reboot':
+					host.error('write', 'reboot', 'reboot')
+				reply = {'DMX':'A {} command has been sent to the system'.format(data['system'])}
+				return reply
+			if data['preset'] in ['default'] + host.get_preset():
+				host.activate_preset('write', data['preset'])
+				reply = {'DMX':'Preset {} activated'.format(data['preset'])}
+			else:
+				reply = {'Error':'Preset {} not found'.format(data['preset'])}
+		else:
+			reply = {'Error':'Incorrect login or password'}
+		return reply
+	except:
+		reply = {'Error':'Incorrect json request'}
+		return reply
 
 # Проверка файла buckup на соответствие
 def check_backup(filename):
@@ -411,15 +426,15 @@ def system(param):
 		abort(404)
 	return render_template("system.html", page = page)
 
-#---------- Backup ----------
-@app.route('/backup', methods=['GET', 'POST'])
-def backup():
+#---------- Setting ----------
+@app.route('/setting', methods=['GET', 'POST'])
+def setting():
 	if not "DMXlogin" in session:
 		menu = host.main_menu
 		return redirect(url_for('login'))
 	else:
 		menu = host.admin_menu
-	page = 'Резервная копия настроек'
+	page = 'Настройки'
 	file = ''
 	text = ''
 	file_name = 'DMXbackup_' + time.strftime("%H-%M_%d-%m-%Y") + '.dmx'
@@ -431,10 +446,10 @@ def backup():
 		bytes = int(request.headers.get('content-length'))
 		if not backup:
 			text = 'Файл резервной копии настроек не выбран'
-			return render_template("backup.html", page = page, menus = menu, text = text, file = file, foot = foot, url = url)
+			return render_template("setting.html", page = page, menus = menu, host = host, text = text, file = file, foot = foot, url = url)
 		elif bytes >= 3000:
 			text = 'Файл слишком большой для резервной копии настроек.'
-			return render_template("backup.html", page = page, menus = menu, text = text, file = file, foot = foot, url = url)
+			return render_template("setting.html", page = page, menus = menu, host = host, text = text, file = file, foot = foot, url = url)
 		else:
 			filename = secure_filename(backup.filename)
 			if check_backup(filename):
@@ -442,8 +457,8 @@ def backup():
 				return redirect(url_for('system', param = filename+'`backup'))
 			else:
 				text = f'Файл {filename} не является резервной копией настроек.'
-				return render_template("backup.html", page = page, menus = menu, text = text, file = file, foot = foot, url = url)
-	return render_template("backup.html", page = page, menus = menu, text = text, file = file, foot = foot, url = url)
+				return render_template("setting.html", page = page, menus = menu, host = host, text = text, file = file, foot = foot, url = url)
+	return render_template("setting.html", page = page, menus = menu, host = host, text = text, file = file, foot = foot, url = url)
 	
 #---------- Download ----------
 @app.route('/download/<path:files>', methods=['GET', 'POST'])
@@ -466,6 +481,8 @@ def page_not_found(e):
 #---------- API ----------
 @app.route('/api/v1/dmx/<string:param>', methods=['GET'])
 def api_info(param):
+	if host.api('read').lower() == 'false':
+		return jsonify({'Error':'API disabled'})
 	errors = host.error('read')
 	api = dict()
 	api['status'] = dict()
@@ -484,18 +501,19 @@ def api_info(param):
 		return jsonify(api)
 	elif param in api:
 		return jsonify({param : api[param]})
-	return jsonify({'error':'param '+str(param)+' not found'})
+	return jsonify({'Error':'Param '+str(param)+' not found'})
 
 @app.route('/api/v1/dmx', methods=['POST'])
 def api_control():
 	if request.json:
-		key = list(request.json.keys())[0]
-		if api_parse(key, request.json[key]):
-			return jsonify({'dmx':'success'}), 201
-	return jsonify({'error':'incorrect json request'})
+		if host.api('read').lower() == 'false':
+			return jsonify({'Error':'API disabled'})
+		data = request.json
+		reply = api_parse(data)
+	return jsonify(reply), 201
 
 #---------- Temp Backdoor ----------
-'''@app.route('/log')
+@app.route('/log')
 def log():
 	session['DMXlogin'] = 'admin'
 	return redirect(url_for('index')) #'''
