@@ -353,7 +353,8 @@ def telegram():
 			host.telegram('add_user', addUser.name_id.data, addUser.name_user.data)
 			return redirect(url_for('telegram'))
 		if delUser.del_user.data:
-			host.telegram('del_user', delUser.name_user.data)
+			if delUser.name_user.data:
+				host.telegram('del_user', delUser.name_user.data)
 			return redirect(url_for('telegram'))
 		if delToken.del_token.data:
 			host.telegram('del_token')
