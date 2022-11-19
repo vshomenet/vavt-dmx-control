@@ -10,6 +10,7 @@ from classConfig import *
 gv = GlobalVar()
 host = ConfigHost(gv.path)
 token = host.telegram('read_token')
+host.check_conf('default')
 gv.create_conf()
 url = host.url()
 

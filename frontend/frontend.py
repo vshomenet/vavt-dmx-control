@@ -137,6 +137,7 @@ gv = GlobalVar()
 host = ConfigHost(gv.path)
 foot = host.foot
 foot.append('ID установки ' + host.id_install())
+host.check_conf('default')
 gv.create_conf()
 url = host.url()
 

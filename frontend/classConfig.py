@@ -97,6 +97,24 @@ class ConfigHost(object):
 		with open(path, 'w') as f:
 			self.cfg.write(f)
 
+	# Проверка параметров в host.conf
+	def check_conf(self, section):
+		self.init_parse(self.pathHost)
+		params = {'login':'d947f2def6d2f32c2fc7df910ed00600', \
+				  'pass':'827ccb0eea8a706c4c34a16891f84e7b', \
+				  'dmxsender':'/dev/ttyUSB0', \
+				  'mode':'manual', \
+				  'preset':'default', \
+				  'api':'True'}
+		keys = list()
+		for key in self.cfg.items(section):
+			keys.append(key[0])
+		for param in params:
+			if not param in keys:
+				self.cfg.set(section, param, params[param])
+				self.write(self.pathHost)
+		return
+			
 	# получение всех устройств
 	def all_device(self):
 		self.init_parse(self.pathDevice)
