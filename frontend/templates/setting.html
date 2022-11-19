@@ -28,7 +28,8 @@
 	<h2> {{ text }} </h2>
 </div>
 <div class="form">
-<br>
+<a>Резервная копия настроек</a>
+<br><br>
 {% if file %}
 <a href="download/{{ file }}">Скачать файл настроек.</a>
 {% else %}
@@ -40,6 +41,16 @@
 <form method="post" enctype=multipart/form-data>
   <input type="file" name="backup">
   <input type="submit" value="Загрузить">
+</form>
+<br><br><hr>
+<a>Настройка API</a>
+<br><br>
+<form method="post">
+	<label>вкл</label>
+	<input type="radio" name="api" value="on" {% if 'True' in api %} checked {% endif %}></input>
+	<label>выкл</label>
+	<input type="radio" name="api" value="off" {% if 'False' in api %} checked {% endif %}></input><br><br>
+	<input type="submit" value="Сохранить">
 </form>
 </div>
 {% endblock %}

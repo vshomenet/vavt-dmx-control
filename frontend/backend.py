@@ -4,6 +4,7 @@ from classConfig import *
 
 gv = GlobalVar()
 host = ConfigHost(gv.path)
+host.check_conf('default')
 gv.create_conf()
 
 # Получаем DMX значения и формируем посылку

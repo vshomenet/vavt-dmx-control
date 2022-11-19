@@ -60,7 +60,7 @@ class ConfigHost(object):
 		self.pathSys = '/dev/shm/sys.conf'
 		self.main_menu = {"index":"Пресеты", "control":"Ручное управление", "login":"Вход"}
 		self.admin_menu = {"index":"Пресеты", "control":"Ручное правление", "config":"Настройки DMX", "cfg_device":"Устройства DMX", \
-						   "telegram":"Telegram", "update":"Обслуживание", "backup":"Резервная копия", "change_admin":"Администратор"}
+						   "telegram":"Telegram", "update":"Обслуживание", "setting":"Настройки", "change_admin":"Администратор"}
 		self.foot = ['© Сергей Семенов sergey@vshome.net']
 
 	# Пароль и пользователь
@@ -97,6 +97,24 @@ class ConfigHost(object):
 		with open(path, 'w') as f:
 			self.cfg.write(f)
 
+	# Проверка параметров в host.conf
+	def check_conf(self, section):
+		self.init_parse(self.pathHost)
+		params = {'login':'d947f2def6d2f32c2fc7df910ed00600', \
+				  'pass':'827ccb0eea8a706c4c34a16891f84e7b', \
+				  'dmxsender':'/dev/ttyUSB0', \
+				  'mode':'manual', \
+				  'preset':'default', \
+				  'api':'True'}
+		keys = list()
+		for key in self.cfg.items(section):
+			keys.append(key[0])
+		for param in params:
+			if not param in keys:
+				self.cfg.set(section, param, params[param])
+				self.write(self.pathHost)
+		return
+			
 	# получение всех устройств
 	def all_device(self):
 		self.init_parse(self.pathDevice)
@@ -255,6 +273,19 @@ class ConfigHost(object):
 			self.cfg.remove_option('telegram', args[1])
 			self.write(self.pathHost)
 			return
+	
+	# Вкл Выкл API
+	def api(self, *args):
+		self.init_parse(self.pathHost)
+		if  args[0] == 'enable':
+			self.cfg.set('default', 'api', 'True')
+			self.write(self.pathHost)
+		if args[0] == 'disable':
+			self.cfg.set('default', 'api', 'False')
+			self.write(self.pathHost)
+		if args[0] == 'read':
+			return self.cfg.get('default', 'api')
+		return
 		
 	# Вкл Выкл режим debug
 	def debug(self):
