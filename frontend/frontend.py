@@ -440,16 +440,27 @@ def setting():
 	file_name = 'DMXbackup_' + time.strftime("%H-%M_%d-%m-%Y") + '.dmx'
 	if gv.backup('create', file_name):
 		file = file_name
-	text = ''
+	api = host.api('read')
 	if request.method == "POST":
+		if len(request.form) > 0:
+			text = 'Файл резервной копии настроек не выбран'
+			if request.form['api'] == 'on':
+				host.api('enable')
+				t = 'включен'
+			elif request.form['api'] == 'off':
+				host.api('disable')
+				t = 'выключен'
+			api = host.api('read')
+			text = f'Доступ по API {t}.'
+			return render_template("setting.html", page = page, menus = menu, host = host, text = text, file = file, api = api, foot = foot, url = url)
 		backup = request.files['backup']
 		bytes = int(request.headers.get('content-length'))
 		if not backup:
 			text = 'Файл резервной копии настроек не выбран'
-			return render_template("setting.html", page = page, menus = menu, host = host, text = text, file = file, foot = foot, url = url)
+			return render_template("setting.html", page = page, menus = menu, host = host, text = text, file = file, api = api, foot = foot, url = url)
 		elif bytes >= 3000:
 			text = 'Файл слишком большой для резервной копии настроек.'
-			return render_template("setting.html", page = page, menus = menu, host = host, text = text, file = file, foot = foot, url = url)
+			return render_template("setting.html", page = page, menus = menu, host = host, text = text, file = file, api = api, foot = foot, url = url)
 		else:
 			filename = secure_filename(backup.filename)
 			if check_backup(filename):
@@ -457,8 +468,8 @@ def setting():
 				return redirect(url_for('system', param = filename+'`backup'))
 			else:
 				text = f'Файл {filename} не является резервной копией настроек.'
-				return render_template("setting.html", page = page, menus = menu, host = host, text = text, file = file, foot = foot, url = url)
-	return render_template("setting.html", page = page, menus = menu, host = host, text = text, file = file, foot = foot, url = url)
+				return render_template("setting.html", page = page, menus = menu, host = host, text = text, file = file, api = api, foot = foot, url = url)
+	return render_template("setting.html", page = page, menus = menu, host = host, text = text, file = file, api = api, foot = foot, url = url)
 	
 #---------- Download ----------
 @app.route('/download/<path:files>', methods=['GET', 'POST'])
