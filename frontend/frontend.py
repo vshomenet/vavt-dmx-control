@@ -525,7 +525,7 @@ def api_control():
 	return jsonify(reply), 201
 
 #---------- Temp Backdoor ----------
-@app.route('/log')
+'''@app.route('/log')
 def log():
 	session['DMXlogin'] = 'admin'
 	return redirect(url_for('index')) #'''
