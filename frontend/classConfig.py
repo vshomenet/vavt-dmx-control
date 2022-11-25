@@ -58,6 +58,7 @@ class ConfigHost(object):
 		self.pathHost = str(path)+'/conf/host.conf'
 		self.pathDMX = str(path)+'/conf/dmx.conf'
 		self.pathSys = '/dev/shm/sys.conf'
+		self.lock = {self.pathDevice:'', self.pathHost:'', self.pathDMX:'', self.pathSys:''}
 		self.main_menu = {"index":"Пресеты", "control":"Ручное управление", "login":"Вход"}
 		self.admin_menu = {"index":"Пресеты", "control":"Ручное правление", "config":"Настройки DMX", "cfg_device":"Устройства DMX", \
 						   "telegram":"Telegram", "update":"Обслуживание", "setting":"Настройки", "change_admin":"Администратор"}
@@ -94,8 +95,15 @@ class ConfigHost(object):
 
 	# Запись конфиг файла
 	def write(self, path):
-		with open(path, 'w') as f:
-			self.cfg.write(f)
+		i = 0
+		while i == 0:
+			if self.lock[path] == '':
+				self.lock[path] == 'locked'
+				with open(path, 'w') as f:
+					self.cfg.write(f)
+					self.lock[path] == ''
+					i = 1
+			time.sleep(0.05)
 
 	# Проверка параметров в host.conf
 	def check_conf(self, section):
