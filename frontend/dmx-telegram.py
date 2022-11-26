@@ -182,7 +182,7 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
 		await bot.send_message(query.from_user.id, text, reply_markup = menu_main())
 	else:
 		text = query.from_user.full_name + text_error_id + str(query.from_user.id)
-		gv.log(f'[warning] [telegram] Incorrect user {str(message.from_user.id)} requested preset menu')
+		gv.log(f'[warning] [telegram] Incorrect user {str(query.from_user.id)} requested preset menu')
 		await bot.send_message(query.from_user.id, text , reply_markup = menu_help())
 
 # Старт программы
