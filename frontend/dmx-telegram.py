@@ -55,12 +55,12 @@ def error():
 	text = ''
 	errors = host.error('read')
 	text = text + '\nЗагружен пресет: ' + host.activate_preset('read')
-	text = text + '\nВерсия программного обеспечения: ' + errors[0][1]
+	text = text + '\nВерсия программного обеспечения: ' + errors[0]
 	text = text + '\nID установки: ' + host.id_install()
-	text = text + '\nРежим отладки: ' + errors[1][1]
+	text = text + '\nРежим отладки: ' + errors[1]
 	text = text + '\nСостояние API: ' + host.api('read')
-	text = text + '\nКонтроллер управления: ' + (errors[3][1]  if errors[3][1] else 'ok')
-	text = text + '\nСистема: ' + (errors[5][1]  if errors[5][1] else 'ok')
+	text = text + '\nКонтроллер управления: ' + (errors[3]  if errors[3] else 'ok')
+	text = text + '\nСистема: ' + (errors[5]  if errors[5] else 'ok')
 	return text
 
 # Главное меню

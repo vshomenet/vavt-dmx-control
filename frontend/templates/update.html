@@ -26,11 +26,11 @@
 	</div>
 <div class="form">
 	<h3> Состояние системы </h3>
-	<a>Версия программного обеспечения: {% if error.0.1 %} {{ error.0.1 }} {% else %} ok {% endif %}</a><br>
-	<a>Режим отладки: {% if error.1.1 %} {{ error.1.1 }} {% else %} ok {% endif %}</a><br>
-	<a>Контроллер управления: {% if error.3.1 %} {{ error.3.1 }} {% else %} ok {% endif %}</a><br>
-	<a>Сеть: {% if error.4.1 %} {{ error.4.1 }} {% else %} ok {% endif %}</a><br>
-	<a>Система: {% if error.5.1 %} {{ error.5.1 }} {% else %} ok {% endif %}</a><br>
+	<a>Версия программного обеспечения: {{ error.0 }} </a><br>
+	<a>Режим отладки: {{ error.1 }} </a><br>
+	<a>Контроллер управления: {% if error.3 %} {{ error.3 }} {% else %} ok {% endif %}</a><br>
+	<a>Сеть: {% if error.4 %} {{ error.4 }} {% else %} ok {% endif %}</a><br>
+	<a>Система: {% if error.5 %} {{ error.5 }} {% else %} ok {% endif %}</a><br>
 	<hr><h3> Обновление системы <br> {{ text.0 }} </h3>
 <form method="post" onsubmit="ShowLoading()">
 	{{ upd.csrf_token() }}

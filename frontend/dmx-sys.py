@@ -21,7 +21,7 @@ def sub(com):
 
 # Перезагрузка системы
 def reboot():
-	if host.error('read')[2][1] == 'reboot':
+	if host.error('read')[2] == 'reboot':
 		host.error('write', 'reboot', '')
 		time.sleep(0.5)
 		os.system('reboot')

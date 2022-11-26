@@ -2,7 +2,9 @@
 /bin/systemctl stop dmx-telegram
 /bin/systemctl stop dmx-sender
 /bin/systemctl stop dmx-sys
-rm /dev/shm/sys.conf
+rm /dev/shm/error_inet.conf
+rm /dev/shm/error_back.conf
+rm /dev/shm/error_sys.conf
 sleep 3
 /bin/systemctl start dmx-sender
 /bin/systemctl start dmx-sys

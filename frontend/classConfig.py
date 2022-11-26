@@ -19,10 +19,14 @@ class GlobalVar(object):
 		self.path = '/media/psf/Home/GIT/vavt-dmx/frontend'
 		#self.path = '/opt/dmx'
 		
-	# Копирование файла sys.conf в оперативную память
+	# Копирование файлов в оперативную память
 	def create_conf(self):
-		if not os.path.isfile('/dev/shm/sys.conf'):
-			os.system('cp '+self.path+'/conf/sys.conf /dev/shm/')
+		if not os.path.isfile('/dev/shm/error_back.conf'):
+			os.system('cp '+self.path+'/conf/error_back.conf /dev/shm/')
+		if not os.path.isfile('/dev/shm/error_inet.conf'):
+			os.system('cp '+self.path+'/conf/error_inet.conf /dev/shm/')
+		if not os.path.isfile('/dev/shm/error_sys.conf'):
+			os.system('cp '+self.path+'/conf/error_sys.conf /dev/shm/')
 			
 	# Рестарт всех сервисов
 	def restart(self):
@@ -36,6 +40,9 @@ class GlobalVar(object):
 			os.system('rm -r ' + self.path + '/download/* > /dev/null 2>&1')
 			i = os.system('cp -r ' + self.path + '/conf ' + self.path + '/download > /dev/null 2>&1')
 			i += os.system('rm ' + self.path + '/download/conf/sys.conf > /dev/null 2>&1')
+			i += os.system('rm ' + self.path + '/download/conf/error_inet.conf > /dev/null 2>&1')
+			i += os.system('rm ' + self.path + '/download/conf/error_back.conf > /dev/null 2>&1')
+			i += os.system('rm ' + self.path + '/download/conf/error_sys.conf > /dev/null 2>&1')
 			i += os.system('tar -cjf '+ self.path + '/download/' + file_name + ' -C ' + self.path + '/download/ conf > /dev/null 2>&1')
 			i += os.system('rm -r ' + self.path + '/download/conf > /dev/null 2>&1')
 			if i == 0:
@@ -58,6 +65,8 @@ class GlobalVar(object):
 		old_log = self.path +'/log/DMXlog.log.1'
 		t = time.strftime("%d.%m.%Y %H:%M:%S")
 		size = 1*1024*1024
+		if not os.path.isfile(log_file):
+			os.system('touch ' + log_file)
 		if os.path.getsize(log_file) >= size:
 			if os.path.isfile(old_log):
 				os.system('rm ' + old_log)
@@ -74,8 +83,11 @@ class ConfigHost(object):
 		self.pathDevice = str(path)+'/conf/device.conf'
 		self.pathHost = str(path)+'/conf/host.conf'
 		self.pathDMX = str(path)+'/conf/dmx.conf'
-		self.pathSys = '/dev/shm/sys.conf'
-		self.lock = {self.pathDevice:'', self.pathHost:'', self.pathDMX:'', self.pathSys:''}
+		self.pathSys = str(path)+'/conf/sys.conf'
+		self.pathErrorBack = '/dev/shm/error_back.conf'
+		self.pathErrorInet = '/dev/shm/error_inet.conf'
+		self.pathErrorSys = '/dev/shm/error_sys.conf'
+		self.lock = {self.pathDevice:'', self.pathHost:'', self.pathDMX:'', self.pathSys:'', self.pathErrorBack:'', self.pathErrorInet:'', self.pathErrorSys:''}
 		self.main_menu = {"index":"Пресеты", "control":"Ручное управление", "login":"Вход"}
 		self.admin_menu = {"index":"Пресеты", "control":"Ручное правление", "config":"Настройки DMX", "cfg_device":"Устройства DMX", \
 						   "telegram":"Telegram", "update":"Обслуживание", "setting":"Настройки", "change_admin":"Администратор"}
@@ -268,12 +280,36 @@ class ConfigHost(object):
 
 	# Чтение и запись ошибок
 	def error(self, *args):
-		self.init_parse(self.pathSys)
 		if args[0] is 'read':
-			return self.cfg.items('default')
+			error = list()
+			self.init_parse(self.pathSys)
+			error.append(self.cfg.get('default', 'version'))
+			error.append(self.cfg.get('default', 'debug'))
+			error.append(self.cfg.get('default', 'reboot'))
+			self.init_parse(self.pathErrorBack)
+			error.append(self.cfg.get('default', 'error'))
+			self.init_parse(self.pathErrorInet)
+			error.append(self.cfg.get('default', 'error'))
+			self.init_parse(self.pathErrorSys)
+			error.append(self.cfg.get('default', 'error'))
+			return error
 		if args[0] is 'write':
-			self.cfg.set('default', args[1], args[2])
-			self.write(self.pathSys)
+			if args[1] == 'error_back':
+				self.init_parse(self.pathErrorBack)
+				self.cfg.set('default', 'error', args[2])
+				self.write(self.pathErrorBack)
+			elif args[1] == 'error_inet':
+				self.init_parse(self.pathErrorInet)
+				self.cfg.set('default', 'error', args[2])
+				self.write(self.pathErrorInet)
+			elif args[1] == 'error_sys':
+				self.init_parse(self.pathErrorSys)
+				self.cfg.set('default', 'error', args[2])
+				self.write(self.pathErrorSys)
+			elif args[1] == 'reboot':
+				self.init_parse(self.pathSys)
+				self.cfg.set('default', 'reboot', args[2])
+				self.write(self.pathSys)
 			return None
 		
 	# Telegram token, пользователи чтение запись
