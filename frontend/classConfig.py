@@ -53,11 +53,21 @@ class GlobalVar(object):
 			return False
 		
 	# Логирование
-	def log(self, log):
+	def log(self, *args):
 		log_file = self.path + '/log/DMXlog.log'
+		old_log = self.path +'/log/DMXlog.log.1'
 		t = time.strftime("%d.%m.%Y %H:%M:%S")
-		com = 'echo ' + t + ' ' + log + ' >> ' + log_file
-		os.system(com)
+		size = 1*1024*1024
+		if os.path.getsize(log_file) >= size:
+			if os.path.isfile(old_log):
+				os.system('rm ' + old_log)
+			rotate = f'mv {log_file} {old_log}'
+			os.system(rotate)
+		if len(args) == 1:
+			com = 'echo ' + t + ' ' + args[0] + ' >> ' + log_file
+			os.system(com)
+			return
+		return
 
 class ConfigHost(object):
 	def __init__(self, path):
