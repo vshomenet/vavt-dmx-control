@@ -103,25 +103,31 @@ class formDelUserTelegram(FlaskForm):
 	del_user = SubmitField(label=('Удалить'))
 
 # Парсинг запроса API активация пресета
-def api_parse(data):
+def api_parse(data, ip):
 	try:
 		if host.passwd('check', data['login'], data['pass']):
 			if data['system'].lower() in ['reset', 'reboot']:
 				if data['system'].lower() == 'reset':
+					gv.log(f'[warning] [api] User {ip} started restart all services')
 					gv.restart()
 				if data['system'].lower() == 'reboot':
+					gv.log(f'[warning] [api] User {ip} started reboot system')
 					host.error('write', 'reboot', 'reboot')
 				reply = {'DMX':'A {} command has been sent to the system'.format(data['system'])}
 				return reply
 			if data['preset'] in ['default'] + host.get_preset():
 				host.activate_preset('write', data['preset'])
+				gv.log(f"[info] [api] User {ip} activated preset {data['preset']}")
 				reply = {'DMX':'Preset {} activated'.format(data['preset'])}
 			else:
+				gv.log(f"[info] [api] User {ip} requested incorrect preset {data['preset']}")
 				reply = {'Error':'Preset {} not found'.format(data['preset'])}
 		else:
+			gv.log(f'[error] [api] User {ip} sended incorrect login or password')
 			reply = {'Error':'Incorrect login or password'}
 		return reply
 	except:
+		gv.log(f'[warning] [api] User {ip} sended incorrect json request')
 		reply = {'Error':'Incorrect json request'}
 		return reply
 
@@ -158,6 +164,7 @@ def index():
 	else:
 		menu = host.admin_menu
 		form = 'admin'
+	ip = request.remote_addr
 	page = 'Пресеты'
 	text = 'Загружен пресет ' + host.activate_preset('read')
 	data = ''
@@ -168,18 +175,21 @@ def index():
 		if aPr.active_preset.data:
 			data = aPr.list_preset.data
 			host.activate_preset('write', data)
+			gv.log(f'[info] [web] User {ip} activated preset {data}')
 			return redirect(url_for('index'))
 		if aPr.del_preset.data:
 			data = aPr.list_preset.data
 			if data != 'default':
 				host.change_preset('delete', data, None)
 				host.activate_preset('write', 'default')
+				gv.log(f'[warning] [web] User {ip} deleted preset {data}')
 				return redirect(url_for('index'))
 			else:
 				text = 'Нельзя удалить системный пресет default'
 		if sPr.name_preset.data:
 			data =  sPr.name_preset.data
 			host.change_preset('save', data, host.activate_preset('read'))
+			gv.log(f'[info] [web] User {ip} created new preset {data}')
 			#host.activate_preset('write', data)
 			return redirect(url_for('index'))
 	return render_template("preset.html", page = page, text = text, menus = menu, form = form, aPr=aPr, sPr = sPr, foot = foot, url = url)
@@ -193,6 +203,7 @@ def control():
 	else:
 		menu = host.admin_menu
 		f = 'admin'
+	ip = request.remote_addr
 	page = 'Ручное управление'
 	form = 'select_device'
 	text = ''
@@ -218,11 +229,15 @@ def control():
 			return redirect(url_for('control'))
 		if fBl.black.data:
 			host.dmx_reset(host.read_conf('default', 'preset'))
+			gv.log(f"[warning] [web] User {ip} reset DMX on zero in preset {host.read_conf('default', 'preset')}")
 			return redirect(url_for('control'))
 		val = request.form
+		dmx = list()
 		for ch_dmx in val:
 			if len(ch_dmx) < 4:
+				dmx.append(ch_dmx)
 				host.set_dmx_val(host.read_conf('default', 'preset'), ch_dmx, val[ch_dmx])
+		gv.log(f"[info] [web] User {ip} changed value DMX channels {', '.join(dmx)} in preset {host.read_conf('default', 'preset')}")
 		return redirect(url_for('control'))
 	return render_template("control.html", page = page, text = text, text2=text2, menus = menu, f=f, form = form, data = data, cDMX = cDMX, fBl=fBl, host=host, mode=mode, foot = foot, url = url)
 
@@ -234,6 +249,7 @@ def cfg_device():
 		return redirect(url_for('login'))
 	else:
 		menu = host.admin_menu
+	ip = request.remote_addr
 	page = 'Добавить, удалить устройство'
 	text = ''
 	addDev = addDevice()
@@ -249,12 +265,14 @@ def cfg_device():
 				text = 'Ошибка сохранения настроек Устройство с таким именем уже есть'
 				return render_template("cfg_device.html", page=page, menus=menu, text=text, addDev=addDev, delDev=delDev, foot=foot, url = url)
 			host.add_device(name_device, mode_device, first_channel, max_channel)
+			gv.log(f'[info] [web] User {ip} added new device {name_device}')
 			return redirect(url_for('cfg_device'))
 		if delDev.del_dev.data and len(host.all_device())>=1:
 			name_device = delDev.name_device.data
 			session.pop('DMXdevice', None)
 			session.pop('DMXcontrol', None)
 			host.del_device(name_device)
+			gv.log(f'[warning] [web] User {ip} deleted device {name_device}')
 			return redirect('/cfg_device')
 	return render_template("cfg_device.html", page = page, menus = menu, text=text, addDev=addDev, delDev=delDev, foot = foot, url = url)
 
@@ -266,6 +284,7 @@ def config():
 		return redirect(url_for('login'))
 	else:
 		menu = host.admin_menu
+	ip = request.remote_addr
 	page = 'Переименование DMX каналов в приборах'
 	text = ''
 	form = 'select_device'
@@ -288,6 +307,7 @@ def config():
 			if not name_channel:
 				name_channel = 'None'
 			host.set_dmx(device, num_channel, name_channel)
+			gv.log(f'[info] [web] User {ip} changed name channels {num_channel} in device {device}')
 			return redirect(url_for('config'))
 		if changeDMX.finish_edit.data:
 			session.pop('DMXdevice', None)
@@ -302,6 +322,7 @@ def login():
 	else:
 		menu = host.admin_menu
 		return redirect(url_for('index'))
+	ip = request.remote_addr
 	page = 'Авторизация'
 	data = 'login'
 	text = ''
@@ -312,7 +333,9 @@ def login():
 		if host.passwd('check', login, passwd):
 			menu = host.admin_menu
 			session['DMXlogin'] = 'admin'
+			gv.log(f'[info] [web] User {ip} authentication success')
 			return redirect(url_for('index'))
+	gv.log(f'[error] [web] User {ip} authentication error')
 	return render_template("admin.html", page = page, menus = menu, data=data, lgn=lgn, foot = foot, url = url)
 
 #---------- Смена пароля и имени пользователя ----------
@@ -323,6 +346,7 @@ def change_admin():
 		return redirect(url_for('login'))
 	else:
 		menu = host.admin_menu
+	ip = request.remote_addr
 	page = 'Смена имени пользователя и пароля'
 	data = 'ch_admin'
 	text = ''
@@ -335,16 +359,20 @@ def change_admin():
 			if new_pass == confirm_pass:
 				host.passwd('save', None, new_pass)
 				text = 'Пароль успешно изменен'
+				gv.log(f'[warning] [web] User {ip} changed password')
 		if ch_admin.login.data:
 			login = ch_admin.login.data
 			host.passwd('save', login, None)
 			text = 'Имя пользователя успешно изменено'
+			gv.log(f'[warning] [web] User {ip} changed login')
 	return render_template("admin.html", page = page, menus = menu, text=text, data=data, ch_pass=ch_pass, ch_admin=ch_admin, foot = foot, url = url)
 
 #---------- Logout ----------
 @app.route('/logout')
 def logout():
+	ip = request.remote_addr
 	session.pop('DMXlogin', None)
+	gv.log(f'[info] [web] User {ip} logout success')
 	return redirect(url_for('index'))
 
 #---------- Настройка telegram ----------
@@ -355,6 +383,7 @@ def telegram():
 		return redirect(url_for('login'))
 	else:
 		menu = host.admin_menu
+	ip = request.remote_addr
 	page = 'Настройка Telegram'
 	token = formTokenTelegram()
 	delToken = formDelTokenTelegram()
@@ -365,17 +394,21 @@ def telegram():
 	if request.method == "POST":
 		if token.save_token.data:
 			host.telegram('write_token', token.name_token.data)
+			gv.log(f'[info] [web] User {ip} added new token for telegram')
 			return redirect(url_for('telegram'))
 		if addUser.save_user.data:
 			host.telegram('add_user', addUser.name_id.data, addUser.name_user.data)
+			gv.log(f'[info] [web] User {ip} added new user with ID {addUser.name_id.data} for telegram')
 			return redirect(url_for('telegram'))
 		if delUser.del_user.data:
 			if delUser.name_user.data:
 				host.telegram('del_user', delUser.name_user.data)
+				gv.log(f'[warning] [web] User {ip} deleted user with ID {addUser.name_user.data} for telegram')
 			return redirect(url_for('telegram'))
 		if delToken.del_token.data:
 			host.telegram('del_token')
 			os.system('systemctl restart dmx-telegram')
+			gv.log(f'[warning] [web] User {ip} deleted token for telegram')
 			return redirect(url_for('telegram'))
 	return render_template("telegram.html", page = page, text = text, menus = menu, token=token, delToken=delToken, addUser=addUser, delUser=delUser, foot = foot, url = url)
 	
@@ -388,6 +421,7 @@ def update():
 	else:
 		page = 'Обслуживание'
 		menu = host.admin_menu
+	ip = request.remote_addr
 	upd = formUpdate()
 	text = ''
 	error = host.error('read')
@@ -397,14 +431,18 @@ def update():
 			text = host.update('check')
 			if 'update' in text:
 				f = 'true'
+			gv.log(f'[info] [web] User {ip} started check update system')
 		if upd.update.data:
 			host.update('update')
+			gv.log(f'[warning] [web] User {ip} started upgrade system')
 			return redirect(url_for('system', param = 'upgrade'))
 		if upd.reboot.data:
 			host.error('write', 'reboot', 'reboot')
+			gv.log(f'[warning] [web] User {ip} started reboot system')
 			return redirect(url_for('system', param = 'reboot'))
 		if upd.reset.data:
 			gv.restart()
+			gv.log(f'[warning] [web] User {ip} started restart all services')
 			return redirect(url_for('system', param = 'reset'))
 	return render_template("update.html", page = page, menus = menu, text = text, upd = upd, f=f, error = error, foot = foot, url = url)
 	
@@ -435,6 +473,7 @@ def setting():
 		return redirect(url_for('login'))
 	else:
 		menu = host.admin_menu
+	ip = request.remote_addr
 	page = 'Настройки'
 	file = ''
 	text = ''
@@ -453,6 +492,7 @@ def setting():
 				t = 'выключен'
 			api = host.api('read')
 			text = f'Доступ по API {t}.'
+			gv.log(f"[info] [web] User {ip} changed setting api {request.form['api']}")
 			return render_template("setting.html", page = page, menus = menu, host = host, text = text, file = file, api = api, foot = foot, url = url)
 		backup = request.files['backup']
 		bytes = int(request.headers.get('content-length'))
@@ -466,6 +506,7 @@ def setting():
 			filename = secure_filename(backup.filename)
 			if check_backup(filename):
 				backup.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+				gv.log(f'[warning] [web] User {ip} started recovery system from file {filename}')
 				return redirect(url_for('system', param = filename+'`backup'))
 			else:
 				text = f'Файл {filename} не является резервной копией настроек.'
@@ -475,8 +516,10 @@ def setting():
 #---------- Download ----------
 @app.route('/download/<path:files>', methods=['GET', 'POST'])
 def download(files):
+	ip = request.remote_addr
 	path = gv.path + '/download/' + files
 	if os.path.exists(path):
+		gv.log(f'[info] [web] User {ip} downloaded backup file')
 		return send_file(path, as_attachment=True)
 	abort(404)
 
@@ -487,12 +530,15 @@ def page_not_found(e):
 		menu = host.main_menu
 	else:
 		menu = host.admin_menu
+	ip = request.remote_addr
+	gv.log(f'[warning] [web] User {ip} request incorrect url')
 	page = ''
 	return render_template('404.html', page = page, menus = menu,  foot = foot, url = url), 404
 
 #---------- API ----------
 @app.route('/api/v1/dmx/<string:param>', methods=['GET'])
 def api_info(param):
+	ip = request.remote_addr
 	if host.api('read').lower() == 'false':
 		return jsonify({'Error':'API disabled'})
 	errors = host.error('read')
@@ -510,22 +556,26 @@ def api_info(param):
 	api['status']['network_error'] = (errors[4][1]  if errors[4][1] else 'ok')
 	api['status']['sys_error'] = (errors[5][1]  if errors[5][1] else 'ok')
 	if param == 'all':
+		gv.log(f'[info] [api] User {ip} requested all params')
 		return jsonify(api)
 	elif param in api:
+		gv.log(f'[info] [api] User {ip} requested {param} params')
 		return jsonify({param : api[param]})
+	gv.log(f'[warning] [api] User {ip} requested incorrect {param} params')
 	return jsonify({'Error':'Param '+str(param)+' not found'})
 
 @app.route('/api/v1/dmx', methods=['POST'])
 def api_control():
+	ip = request.remote_addr
 	if request.json:
 		if host.api('read').lower() == 'false':
 			return jsonify({'Error':'API disabled'})
 		data = request.json
-		reply = api_parse(data)
+		reply = api_parse(data, ip)
 	return jsonify(reply), 201
 
 #---------- Temp Backdoor ----------
-'''@app.route('/log')
+@app.route('/log')
 def log():
 	session['DMXlogin'] = 'admin'
 	return redirect(url_for('index')) #'''

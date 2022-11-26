@@ -16,8 +16,8 @@ from wtforms.validators import DataRequired
 
 class GlobalVar(object):
 	def __init__(self):
-		#self.path = '/media/psf/Home/GIT/vavt-dmx/frontend'
-		self.path = '/opt/dmx'
+		self.path = '/media/psf/Home/GIT/vavt-dmx/frontend'
+		#self.path = '/opt/dmx'
 		
 	# Копирование файла sys.conf в оперативную память
 	def create_conf(self):
@@ -51,6 +51,13 @@ class GlobalVar(object):
 					return True
 			os.system('rm -r ' + self.path + '/download/* > /dev/null 2>&1')
 			return False
+		
+	# Логирование
+	def log(self, log):
+		log_file = self.path + '/log/DMXlog.log'
+		t = time.strftime("%d.%m.%Y %H:%M:%S")
+		com = 'echo ' + t + ' ' + log + ' >> ' + log_file
+		os.system(com)
 
 class ConfigHost(object):
 	def __init__(self, path):
