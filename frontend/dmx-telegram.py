@@ -55,12 +55,12 @@ def error():
 	text = ''
 	errors = host.error('read')
 	text = text + '\nЗагружен пресет: ' + host.activate_preset('read')
-	text = text + '\nВерсия программного обеспечения: ' + errors[0][1]
+	text = text + '\nВерсия программного обеспечения: ' + errors[0]
 	text = text + '\nID установки: ' + host.id_install()
-	text = text + '\nРежим отладки: ' + errors[1][1]
+	text = text + '\nРежим отладки: ' + errors[1]
 	text = text + '\nСостояние API: ' + host.api('read')
-	text = text + '\nКонтроллер управления: ' + (errors[3][1]  if errors[3][1] else 'ok')
-	text = text + '\nСистема: ' + (errors[5][1]  if errors[5][1] else 'ok')
+	text = text + '\nКонтроллер управления: ' + (errors[3]  if errors[3] else 'ok')
+	text = text + '\nСистема: ' + (errors[5]  if errors[5] else 'ok')
 	return text
 
 # Главное меню
@@ -103,6 +103,7 @@ async def process_start_command(message: types.Message):
 	text = 'Добрый день '
 	text += message.from_user.full_name
 	text += text_menu
+	gv.log(f'[info] [telegram] User {str(message.from_user.id)} requested start menu')
 	await bot.send_message(message.from_user.id, text, reply_markup = menu_main())
 	
 # Ответ на команду preset
@@ -110,27 +111,32 @@ async def process_start_command(message: types.Message):
 async def start_cmd_handler(message: types.Message):
 	if str(message.from_user.id) in list_id():
 		text = message.from_user.full_name + text_preset  +  host.activate_preset('read')
+		gv.log(f'[info] [telegram] User {str(message.from_user.id)} requested preset menu')
 		await bot.send_message(message.from_user.id, text, reply_markup = menu_preset('menu'))
 	else:
 		text = message.from_user.full_name + text_error_id + str(message.from_user.id)
+		gv.log(f'[warning] [telegram] Incorrect user {str(message.from_user.id)} requested preset menu')
 		await bot.send_message(message.from_user.id, text , reply_markup = menu_help())
 	
 # Ответ на команду id
 @dp.message_handler(commands=['id'])
 async def process_start_command(message: types.Message):
 	text = message.from_user.full_name + '\nВаш ID:\n' + str(message.from_user.id)
+	gv.log(f'[info] [telegram] User {str(message.from_user.id)} requested id menu')
 	await bot.send_message(message.from_user.id, text , reply_markup = menu_main())
 
 # Ответ на команду help
 @dp.message_handler(commands=['help'])
 async def process_start_command(message: types.Message):
 	text = message.from_user.full_name + text_help
+	gv.log(f'[info] [telegram] User {str(message.from_user.id)} requested help menu')
 	await bot.send_message(message.from_user.id, text, reply_markup = menu_help())
 
 # Ответ на команду status
 @dp.message_handler(commands=['status'])
 async def process_start_command(message: types.Message):
 	text = message.from_user.full_name + text_status + error()
+	gv.log(f'[info] [telegram] User {str(message.from_user.id)} requested status menu')
 	await bot.send_message(message.from_user.id, text, reply_markup = menu_main())
 	
 # Ответ на произвольный текст
@@ -138,9 +144,11 @@ async def process_start_command(message: types.Message):
 async def echo_message(message: types.Message):
 	if message.text in menu_preset('preset') and str(message.from_user.id) in list_id():
 		text = message.from_user.full_name + f'\nПресет {message.text} успешно загружен'
+		gv.log(f'[info] [telegram] User {str(message.from_user.id)} activated preset {message.text}')
 		host.activate_preset('write', message.text)
 	else:
 		text = message.from_user.full_name + f'\nНеизвестная команда "{message.text}"'
+		gv.log(f'[info] [telegram] User {str(message.from_user.id)} sended incorrect command {message.text}')
 	await bot.send_message(message.from_user.id, text, reply_markup = menu_main())
 	
 # Обработка кнопок меню
@@ -149,26 +157,32 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
 	if query.data in menu_preset('preset') and str(query.from_user.id) in list_id():
 		await query.answer(f'Загружаем пресет {query.data}')
 		host.activate_preset('write', query.data)
+		gv.log(f'[info] [telegram] User {str(query.from_user.id)} activated preset {query.data}')
 		text = query.from_user.full_name + f'\nПресет {query.data} успешно загружен'
 		await bot.send_message(query.from_user.id, text, reply_markup = menu_preset('menu'))
 	elif query.data == 'start':
 		await query.answer(f'Переходим в главное меню')
 		text = query.from_user.full_name + text_menu
+		gv.log(f'[info] [telegram] User {str(query.from_user.id)} requested start menu')
 		await bot.send_message(query.from_user.id, text, reply_markup = menu_main())
 	elif query.data == 'preset' and str(query.from_user.id) in list_id():
 		await query.answer(f'Переходим в раздел управления')
 		text = query.from_user.full_name + text_preset +  host.activate_preset('read')
+		gv.log(f'[info] [telegram] User {str(query.from_user.id)} requested preset menu')
 		await bot.send_message(query.from_user.id, text, reply_markup = menu_preset('menu'))
 	elif query.data == 'help':
 		await query.answer(f'Переходим в раздел помощь')
 		text = query.from_user.full_name + text_help
+		gv.log(f'[info] [telegram] User {str(query.from_user.id)} requested help menu')
 		await bot.send_message(query.from_user.id, text, reply_markup = menu_help())
 	elif query.data == 'status':
 		await query.answer(f'Переходим в раздел состояние системы')
 		text = query.from_user.full_name + text_status + error()
+		gv.log(f'[info] [telegram] User {str(query.from_user.id)} requested status menu')
 		await bot.send_message(query.from_user.id, text, reply_markup = menu_main())
 	else:
 		text = query.from_user.full_name + text_error_id + str(query.from_user.id)
+		gv.log(f'[warning] [telegram] Incorrect user {str(query.from_user.id)} requested preset menu')
 		await bot.send_message(query.from_user.id, text , reply_markup = menu_help())
 
 # Старт программы

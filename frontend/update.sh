@@ -5,6 +5,9 @@ sleep 5
 /bin/systemctl stop dmx-sys
 cd /opt/dmx/conf
 rm sys.conf
+rm error_inet.conf
+rm error_back.conf
+rm error_sys.conf
 /usr/bin/tar -cvf /tmp/dmx_backup.tar *
 cd /opt
 rm -rf /opt/dmx
