@@ -188,6 +188,9 @@ def index():
 				text = 'Нельзя удалить системный пресет default'
 		if sPr.name_preset.data:
 			data =  sPr.name_preset.data
+			if data in ['reset', 'reboot', 'default']:
+				text = f'Название пресета не может быть {data}, это имя зарезервировано системой'
+				return render_template("preset.html", page = page, text = text, menus = menu, form = form, aPr=aPr, sPr = sPr, foot = foot, url = url)
 			host.change_preset('save', data, host.activate_preset('read'))
 			gv.log(f'[info] [web] User {ip} created new preset {data}')
 			#host.activate_preset('write', data)
