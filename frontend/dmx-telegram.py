@@ -26,7 +26,11 @@ text_help = '\nВы находитесь в раделе помощь. \
 			\n/preset вызов меню загрузки \
 			\n/help вызов меню справки \
 			\n/id показать мой ID \
-			\n/status показать состояние системы'
+			\n/status показать состояние системы \
+			\nДля загрузки пресета, необходимо отправить сообщение с названием пресета \
+			или воспользоваться кнопками бота \
+			\nСообщение reset - приведет к перезапуску всех служб на сервере \
+			\nСообщение reboot - приведет к перезагрузке сервера'
 
 text_preset = '\nВы находитесь в разделе управление. \
 				\nКакой пресет вы хотите загрузить? \
@@ -146,6 +150,15 @@ async def echo_message(message: types.Message):
 		text = message.from_user.full_name + f'\nПресет {message.text} успешно загружен'
 		gv.log(f'[info] [telegram] User {str(message.from_user.id)} activated preset {message.text}')
 		host.activate_preset('write', message.text)
+	elif message.text in ['reset', 'reboot'] and str(message.from_user.id) in list_id():
+		if message.text == 'reset':
+			text = message.from_user.full_name + f'\nКоманда на перезапуск всех служб отправлена.'
+			gv.log(f'[warning] [telegram] User {str(message.from_user.id)} started restart all services')
+			gv.restart()
+		elif message.text == 'reboot':
+			text = message.from_user.full_name + f'\nКоманда на перезагрузку сервера отправлена.'
+			gv.log(f'[warning] [telegram] User {str(message.from_user.id)} started reboot system')
+			host.error('write', 'reboot', 'reboot')
 	else:
 		text = message.from_user.full_name + f'\nНеизвестная команда "{message.text}"'
 		gv.log(f'[info] [telegram] User {str(message.from_user.id)} sended incorrect command {message.text}')
