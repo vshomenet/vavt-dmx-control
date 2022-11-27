@@ -76,6 +76,9 @@ class GlobalVar(object):
 			com = 'echo ' + t + ' ' + args[0] + ' >> ' + log_file
 			os.system(com)
 			return
+		if args[0] == 'create':
+			com = f'tar -cvf {args[1]} -C {self.path}/ log'
+			os.system(com)
 		return
 
 class ConfigHost(object):

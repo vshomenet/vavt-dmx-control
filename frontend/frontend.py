@@ -518,6 +518,11 @@ def setting():
 def download(files):
 	ip = request.remote_addr
 	path = gv.path + '/download/' + files
+	log_file = gv.path + '/download/dmx_log.tar'
+	if files == 'dmx_log.tar':
+		gv.log(f'[info] [web] User {ip} downloaded logs file')
+		gv.log('create', log_file)
+		return send_file(log_file, as_attachment=True)
 	if os.path.exists(path):
 		gv.log(f'[info] [web] User {ip} downloaded backup file')
 		return send_file(path, as_attachment=True)

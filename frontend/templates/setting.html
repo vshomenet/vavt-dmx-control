@@ -31,7 +31,7 @@
 <a>Резервная копия настроек</a>
 <br><br>
 {% if file %}
-<a href="download/{{ file }}">Скачать файл настроек.</a>
+<a href="download/{{ file }}">Скачать файл настроек</a>
 {% else %}
 <a>Внутренняя ошибка сервера. Не удалось создать резервную копию.</a>
 {% endif %}
@@ -52,6 +52,9 @@
 	<input type="radio" name="api" value="off" {% if 'False' in api %} checked {% endif %}></input><br><br>
 	<input type="submit" value="Сохранить">
 </form>
+<hr>
+<a>Логирование системы</a><br><br>
+<a href="download/dmx_log.tar">Скачать файл логов</a>
 </div>
 {% endblock %}
 
