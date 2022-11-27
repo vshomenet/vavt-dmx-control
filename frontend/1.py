@@ -10,8 +10,6 @@ gv = GlobalVar()
 host = ConfigHost(gv.path)
 gv.create_conf()
 
-while True:
-	gv.log('sergey')
 	
 '''url = 'http://127.0.0.1:5000/api/v1/dmx'
 param = {'preset':'default'}
